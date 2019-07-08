@@ -1,6 +1,6 @@
 {
   "name": "another-use-form-hook",
-  "version": "0.0.0-development",
+  "version": "0.0.0-semantically-released",
   "maintainers": [
     {
       "name": "Balázs Orbán",
@@ -15,7 +15,7 @@
     "validation"
   ],
   "description": "A React hook 🎣 for easy form handling",
-  "main": "dist/index.js",
+  "main": "dist/another-use-form-hook.cjs.js",
   "module": "dist/another-use-form-hook.esm.js",
   "author": "Balázs Orbán <info@balazsorban.com> (https://balazsorban.com)",
   "license": "MIT",
@@ -36,10 +36,13 @@
     "semantic-release": "^15.13.18"
   },
   "scripts": {
-    "build": "kcd-scripts build --no-clean",
+    "build": "kcd-scripts build --bundle",
     "test": "npx jest",
     "semantic-release": "semantic-release"
   },
+  "files": [
+    "dist"
+  ],
   "bugs": {
     "email": "info@balazsorban.com",
     "url": "https://github.com/balazsorban44/use-form/issues"
