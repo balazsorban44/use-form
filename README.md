@@ -1,13 +1,9 @@
+<div align="center">
+<h1>another-use-form-hook</h1>
 
-<center>
+<p>A React hook 🎣 for easy form handling</p>
 
-# another-use-form-hook
-
-A React hook 🎣 for easy form handling
-
-### ⚠ WARNING! This is still in development! ⚠
-
-</center>
+</div>
 
 ---
 
@@ -21,6 +17,31 @@ A React hook 🎣 for easy form handling
 
 [![Watch on GitHub][github-watch-badge]][github-watch]
 [![Star on GitHub][github-star-badge]][github-star]
+
+---
+
+> ⚠ WARNING! This is still in development! ⚠
+
+## Table of Contents
+
+- [Installation](#installation)
+- [Usage](#usage)
+- [LICENSE](#license)
+
+## Installation
+This should be installed as one of your project `dependencies`:
+
+```js
+yarn add another-use-form-hook
+```
+or
+```js
+npm install --save another-use-form-hook
+```
+
+## Usage
+
+> TODO:
 
 
 ## LICENSE
