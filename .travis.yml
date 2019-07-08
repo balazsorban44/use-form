@@ -3,11 +3,13 @@ language: node_js
 node_js:
   - 8
 
+cache: yarn
+
 jobs:
   include:
     - stage: build
       script:
-        - npx kcd-scripts build
+        - npx kcd-scripts build --no-clean
     # Define the release stage that runs semantic-release
     - stage: release
       node_js: lts/*

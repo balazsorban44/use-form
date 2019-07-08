@@ -31,11 +31,11 @@
 ## Installation
 This should be installed as one of your project `dependencies`:
 
-```js
+```
 yarn add another-use-form-hook
 ```
 or
-```js
+```
 npm install --save another-use-form-hook
 ```
 

@@ -16,6 +16,7 @@
   ],
   "description": "A React hook 🎣 for easy form handling",
   "main": "dist/index.js",
+  "module": "dist/another-use-form-hook.esm.js",
   "author": "Balázs Orbán <info@balazsorban.com> (https://balazsorban.com)",
   "license": "MIT",
   "private": false,
@@ -35,7 +36,7 @@
     "semantic-release": "^15.13.18"
   },
   "scripts": {
-    "build": "babel src/index.js -o dist/index.js",
+    "build": "kcd-scripts build --no-clean",
     "test": "npx jest",
     "semantic-release": "semantic-release"
   },
