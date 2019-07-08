@@ -17,6 +17,7 @@
   "description": "A React hook 🎣 for easy form handling",
   "main": "dist/another-use-form-hook.cjs.js",
   "module": "dist/another-use-form-hook.esm.js",
+  "types": "types/index.d.ts",
   "author": "Balázs Orbán <info@balazsorban.com> (https://balazsorban.com)",
   "license": "MIT",
   "private": false,
