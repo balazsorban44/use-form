@@ -9,7 +9,6 @@ export default function useForm ({
   submit,
   onFinished,
   onNotify,
-  // Validation
   validations=[],
   validatorObject={},
   context=null
@@ -76,7 +75,6 @@ export default function useForm ({
     form, loading, onNotify, validatorObject,
     submit, onFinished,
   ])
-
 
   if (process.env.NODE_ENV !== 'production' && !form) {
     throw Error([
