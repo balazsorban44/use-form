@@ -15,7 +15,7 @@
     "validation"
   ],
   "description": "A React hook 🎣 for easy form handling",
-  "main": "dist/another-use-form-hook.cjs.js",
+  "main": "dist/index.js",
   "module": "dist/another-use-form-hook.esm.js",
   "types": "types/index.d.ts",
   "author": "Balázs Orbán <info@balazsorban.com> (https://balazsorban.com)",
@@ -37,10 +37,11 @@
     "semantic-release": "^15.13.18"
   },
   "scripts": {
-    "build": "kcd-scripts build --bundle",
+    "build": "kcd-scripts build && kcd-scripts build --bundle --no-clean",
     "validate": "kcd-scripts validate",
     "test": "npx jest",
-    "semantic-release": "semantic-release"
+    "semantic-release": "semantic-release",
+    "setup": "npm install && npm run validate -s"
   },
   "files": [
     "dist"
