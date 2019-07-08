@@ -37,6 +37,7 @@
   },
   "scripts": {
     "build": "kcd-scripts build --bundle",
+    "validate": "kcd-scripts validate",
     "test": "npx jest",
     "semantic-release": "semantic-release"
   },
