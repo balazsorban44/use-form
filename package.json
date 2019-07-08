@@ -1,0 +1,51 @@
+{
+  "name": "another-use-form-hook",
+  "version": "0.0.0-development",
+  "maintainers": [
+    {
+      "name": "Balázs Orbán",
+      "email": "info@balazsorban.com",
+      "url": "https://balazsorban.com"
+    }
+  ],
+  "keywords": [
+    "react",
+    "hook",
+    "form",
+    "validation"
+  ],
+  "description": "A React hook 🎣 for easy form handling",
+  "main": "dist/index.js",
+  "author": "Balázs Orbán <info@balazsorban.com> (https://balazsorban.com)",
+  "license": "MIT",
+  "private": false,
+  "peerDependencies": {
+    "react": ">=16.8"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.5.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.5.0",
+    "@babel/core": "^7.5.0",
+    "@babel/preset-env": "^7.5.0",
+    "@types/react": "^16.8.23",
+    "jest": "^24.8.0",
+    "kcd-scripts": "^1.4.0",
+    "semantic-release": "^15.13.18"
+  },
+  "scripts": {
+    "build": "babel src/index.js -o dist/index.js",
+    "test": "npx jest",
+    "semantic-release": "semantic-release"
+  },
+  "bugs": {
+    "email": "info@balazsorban.com",
+    "url": "https://github.com/balazsorban44/use-form/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/balazsorban44/use-form.git"
+  },
+  "homepage": "https://github.com/balazsorban44/use-form#readme"
+}
