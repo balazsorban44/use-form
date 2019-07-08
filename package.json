@@ -39,7 +39,7 @@
   "scripts": {
     "build": "kcd-scripts build && kcd-scripts build --bundle --no-clean",
     "validate": "kcd-scripts validate",
-    "test": "npx jest",
+    "test": "kcd-scripts test",
     "semantic-release": "semantic-release",
     "setup": "npm install && npm run validate -s"
   },
