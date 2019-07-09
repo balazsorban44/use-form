@@ -22,6 +22,9 @@
 
 > ⚠ WARNING! This is still in development! ⚠
 
+> I am new to many things here... semantic-release, npm publishing and TypeScript is all the stuff I haven't tried before, so please excuse me for the "messy" start. I am hoping to keep everything clean from now on...
+The documentation is still missing, and there are some rough edges on the inside, so please use with caution! Other than that, please enjoy! ✨💖🚀
+
 ## Table of Contents
 
 - [Installation](#installation)
