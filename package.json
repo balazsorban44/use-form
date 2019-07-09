@@ -17,7 +17,7 @@
   "description": "A React hook 🎣 for easy form handling",
   "main": "dist/index.js",
   "module": "dist/another-use-form-hook.esm.js",
-  "types": "types/index.d.ts",
+  "types": "typings/index.d.ts",
   "author": "Balázs Orbán <info@balazsorban.com> (https://balazsorban.com)",
   "license": "MIT",
   "private": false,
@@ -44,7 +44,8 @@
     "setup": "npm install && npm run validate -s"
   },
   "files": [
-    "dist"
+    "dist",
+    "typings"
   ],
   "bugs": {
     "email": "info@balazsorban.com",

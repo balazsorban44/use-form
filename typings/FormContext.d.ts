@@ -2,7 +2,7 @@
 /** Context that holds forms by default */
 declare const FormContext : React.Context<Object>
 
-declare function reducer(state: React.ReducerState<any>, {type, payload}: React.ReducerAction<Action>) : Object
+declare function reducer(state: React.ReducerState<any>, action: React.ReducerAction<any>) : Object
 
 /**
  * Should be declared as high as possible (preferebly in App) in 

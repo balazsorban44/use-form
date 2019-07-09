@@ -20,12 +20,9 @@ interface UseFormParams {
    */
   name: string
   /** Function called on submiting. */
-  // TODO:
   submit: SubmitFunction
-  // TODO:
   onFinished: OnFinishedCallback
   /** Called if something hapened the user should know about. */
-  // TODO:
   onNotify: OnNotifyCallback
   /** Defaults to the field object's keys, but can define more, for interconnected field value validations. */
   validations?: string[]
@@ -42,12 +39,9 @@ interface UseFormParams {
 
 interface FormInformation {
   fields: {
+    metadata: FieldMetadata,
     /** Form field, returning a value and an error boolean if the value is invalid. */
-    [name: string]: Field,
-    metadata: {
-      /** If any of the fields did not pass validation, this is set to true. */
-      hasErrors: boolean
-    }
+    [name: string]: Field | FieldMetadata
   }
   /** To handle field changes, with field validation. */
   handleChange: (
@@ -64,6 +58,11 @@ interface FormInformation {
   loading: boolean
 }
 
+interface FieldMetadata {
+  /** If any of the fields did not pass validation, this is set to true. */
+  hasErrors: boolean
+}
+
 
 export interface Field {
   /** The field's value. */
@@ -72,6 +71,7 @@ export interface Field {
   error?: boolean
 }
 
+/**TODO: */
 type SubmitFunction = ({
   fields,
   setLoading,
@@ -86,5 +86,12 @@ type SubmitFunction = ({
   /** Callback intended to call when all operation is finished. */
   finish: () => Function
 }) => Promise<boolean>
+
+
+/**TODO: */
+type OnFinishedCallback = () => void
+
+/**TODO: */
+type OnNotifyCallback = () => void
 
 export default useForm
