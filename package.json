@@ -31,14 +31,23 @@
     "@babel/cli": "^7.5.0",
     "@babel/core": "^7.5.4",
     "@babel/preset-env": "^7.5.4",
+    "@babel/preset-react": "^7.0.0",
+    "@testing-library/jest-dom": "^4.0.0",
+    "@testing-library/react": "^8.0.5",
     "@types/react": "^16.8.23",
+    "babel-jest": "^24.8.0",
+    "jest": "^24.8.0",
     "kcd-scripts": "^1.5.2",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-test-renderer": "^16.8.6",
     "semantic-release": "^15.13.18"
   },
   "scripts": {
     "build": "kcd-scripts build && kcd-scripts build --bundle --no-clean",
     "validate": "kcd-scripts validate",
     "test": "kcd-scripts test",
+    "test:coverage": "kcd-scripts test --coverage --coverageReporters html --watch",
     "semantic-release": "semantic-release",
     "setup": "npm install && npm run validate -s"
   },
@@ -54,5 +63,15 @@
     "type": "git",
     "url": "https://github.com/balazsorban44/use-form.git"
   },
-  "homepage": "https://github.com/balazsorban44/use-form#readme"
+  "homepage": "https://github.com/balazsorban44/use-form#readme",
+  "jest": {
+    "coverageThreshold": {
+      "global": {
+        "branches": 0,
+        "functions": 0,
+        "lines": 0,
+        "statements": 0
+      }
+    }
+  }
 }
