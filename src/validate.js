@@ -1,14 +1,19 @@
 /** */
-export default function validate({ fields, validatorObject, validations=[], handleError=null }) {
+export default function validate({ form={}, fields, validatorObject, validations=[], handleError=null }) {
   const errors = {}
   const validateOn = ([...Object.keys(fields), ...validations])
 
   validateOn.forEach(key => {
     if (key in validatorObject) {
-      const error = !validatorObject[key](fields)
-      errors[key] = error
+      const error = !validatorObject[key]({...form, ...fields})
+
+      if (key in fields) errors[key] = error
+      
+      // if this is a custom validation, set error on the field that used it
+      else Object.keys(fields).forEach(field => {errors[field] = error})
+
     } else {
-      throw Error(`${key} has no validator in validatorObject`)
+      throw new Error(`${key} has no validator in validatorObject`)
     }
   })
 

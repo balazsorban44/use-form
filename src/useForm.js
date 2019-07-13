@@ -26,14 +26,28 @@ export default function useForm ({
    * Handles multiple field changes at once,
    * and also validates them.
    */
-  const handleChange = useCallback((fields, validations=[]) => {
+  const handleChange = useCallback((...args) => {
+    let fields={},
+        validations=[]
+    
+    if ("target" in args[0]) {
+      const {name, value} = args[0].target
+      if (!name)
+        throw new Error(`Invalid name attribute on input. Should be a string but was ${name}.`)
+      fields[name] = value
+    } else {
+      fields = args[0]
+      validations = args[1]
+    }
+
     validate({
+      form,
       validations,
       fields,
       validatorObject,
       handleError: errors => {
         Object.entries(errors).forEach(([key, error]) => {
-          error && onNotify('validationError', key)
+          error && onNotify && onNotify('validationError', key)
         })
         setErrors(e => ({ ...e, ...errors }))
       }
@@ -77,7 +91,8 @@ export default function useForm ({
   ])
 
   if (process.env.NODE_ENV !== 'production' && !form) {
-    throw Error([
+
+    throw new Error([
       `The initial state for "${name}" was undefined.`,
       'You can define an initialState in the FormProvider',
       'like this: <FormProvider options={{initialState: {formName: /*initial values here*/}}}>...',
