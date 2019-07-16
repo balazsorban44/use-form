@@ -1,0 +1,40 @@
+{
+  "plugins": [
+    "react-hooks"
+  ],
+  "parser": "babel-eslint",
+  "parserOptions": {
+    "ecmaVersion": 10
+  },
+  "rules": {
+    "quotes": ["error", "single"],
+    "max-len": ["error", {"comments": 80, "code": 120}],
+    "space-infix-ops": "error",
+    "object-shorthand":"error",
+    "no-irregular-whitespace":"error",
+    "no-useless-escape":"error",
+    "block-spacing":["warn", "never"],
+    "semi": [2, "never"],
+    "no-trailing-spaces":"error",
+    "space-unary-ops":"error",
+    "no-mixed-spaces-and-tabs":"error",
+    "indent": ["error", 2],
+    "no-multiple-empty-lines":"error",
+    "object-property-newline":["error", {"allowAllPropertiesOnSameLine": true}],
+    "object-curly-spacing": ["error", "always"],
+    "object-curly-newline": ["error", {"multiline": true}],
+    "prefer-template":"warn",
+    "arrow-spacing":"error",
+    "prefer-arrow-callback":"warn",
+    "no-duplicate-imports":"error",
+    "dot-location":["error", "property"],
+    "no-multi-spaces":"error",
+    "radix":"error",
+    "comma-dangle":["error", { "arrays": "always-multiline" }],
+    "prefer-const":"error",
+    "array-bracket-newline":"error",
+    "lines-between-class-members":"error",
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn"
+  }
+}
