@@ -43,7 +43,7 @@ export default function useForm ({
   const handleChange = useCallback((...args) => {
     let fields = {}
     let validations = []
-    
+
     if ('target' in args[0]) {
       const { name, value } = args[0].target
       if (process.env.NODE_ENV !== 'production' && !name)
@@ -60,15 +60,15 @@ export default function useForm ({
       validations,
       fields,
       validators
-        })
+    })
 
-        setErrors(e => ({ ...e, ...errors }))
+    setErrors(e => ({ ...e, ...errors }))
 
     if (onNotify) {
       Object.keys(errors)
         .filter(field => errors[field])
         .forEach(field => {onNotify('validationError', field)})
-      }
+    }
 
     dispatch({ type: name, payload: fields })
 
@@ -83,12 +83,12 @@ export default function useForm ({
     e.preventDefault && e.preventDefault()
 
     if (!loading) {
-      const errors = validate({ form, validators })
+      const errors = validate({ fields: form, validators })
 
       if (Object.values(errors).some(e => e)) {
-          setErrors(e => ({ ...e, ...errors }))
+        setErrors(e => ({ ...e, ...errors }))
         onNotify && onNotify('submitError')
-        }
+      }
       else {
         submit({
           fields: form,
