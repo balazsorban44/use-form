@@ -1,32 +1,34 @@
+import { Fields } from "./useForm"
+
 /**
  * Validates fields by given validation keys.
  * Those keys must be present in the provided
- * validatorObject.
+ * `validators`. Returns the errors.
  */
-declare function validate(params: {
-  fields: Object,
-  validatorObject: ValidatorObject,
-  validations?: string[],
-  handleError?: HandleValidateErrorFunction | null
-}) : boolean
+declare function validate(params: ValidateParams) : Errors
 
-
-export interface ValidatorObject {
-  [fieldName: string]: FieldValidatorFunction
+interface ValidateParams {
+  fields: Fields
+  validators: Validators
+  validations?: string[]
+  form?: Fields
 }
 
-/** TODO: */
-type HandleValidateErrorFunction = () => null
 
-type FieldValidatorFunction = 
+type ValidatorFunction =
 /**
- * The parameters are all the fields in the given form.
+ * The parameter is an object, containing all the form's values.
  * It can be used to validate fields dependent on other fields,
  * or custom conditions, but should focus on validating the field
- * with the same fieldName.
+ * with the same fieldKey.
  * Should return `true` if valid.
  */
-(fields: {[fieldName: string]: any}) => boolean
+(fields: Fields) => boolean
 
+interface Errors {
+  [fieldKey: string]: boolean
+}
 
-export default validate
+export default interface Validators {
+  [fieldKey: string]: ValidatorFunction
+}

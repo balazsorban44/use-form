@@ -1,97 +1,151 @@
-import { ValidatorObject } from "./validate"
+import Validators, { Fields, FieldKey } from "./validate"
+
+
+export interface Fields {
+  [fieldKey: string]: any
+}
 
 /** Hook to set up a form. */
 declare function useForm({
-  name,
-  submit,
-  onFinished,
-  onNotify,
-  validations,
-  validatorObject
-}: UseFormParams) : FormInformation
-
-
+  name, validators, submit,
+  onFinished, onNotify, context,
+  validations, validatorObject
+}: UseFormParams) : UseForm
 
 interface UseFormParams {
   /**
-   * More of a namespace, to determine location of the form in the context's state. 
-   * It is important that the name is the same as the object key
-   * in the reducer to the object containing the fields.
+   * Determine which form should we hook into in the Forms Context.
+   * This makes it possible to handle multiple forms.
+   * (Each form should have their own unique names.)
    */
   name: string
-  /** Function called on submiting. */
+  /**
+   * An object containing validator functions.
+   * Can be used to test interdependent fields.
+   * It should at least contain a validator function
+   * for each form field. The key of the validator function is
+   * the same as the form field's that it is testing.
+   * (eg.: fields.email -> validators.email)
+   *
+   * A validator function returns `true`
+   * if the field(s) it is testing are valid.
+   */
+  validators: Validators
+  /** Function called to submit the form. */
   submit: SubmitFunction
-  onFinished: OnFinishedCallback
-  /** Called if something hapened the user should know about. */
-  onNotify: OnNotifyCallback
-  /** Defaults to the field object's keys, but can define more, for interconnected field value validations. */
-  validations?: string[]
-  /** An object containing validator functions. Can be verbose, to test fields that are interconnected. */
-  validatorObject?: ValidatorObject,
-  /** 
-   * If provided, you can define to which Context you want to save the form data. It uses useReducer()
-   * internally, so you should provde a dispatch method in your Context as well.
-   * TODO: Document better.
+  /**
+   * An optional callback function,
+   * invoked when a submission has been successfully submitted.
+   */
+  onFinished?: Function
+  /** Invoked if something happened that the user should be informed about. */
+  onNotify?: OnNotifyCallback
+  /**
+   * Context is used internally. You set it up with `FormProvider`.
+   * However, if you already have one you like to use for forms,
+   * you can pass it here.
+   * 
+   * For implementation details follow this link:
+   * @see https://github.com/balazsorban44/use-form#usage
    */
   context?: React.Context<any>
+  /** @deprecated Not needed anymore. */
+  validations?: string[]
+  /** @deprecated Plase use `validators` instead. */
+  validatorObject: Validators
 }
 
 
-interface FormInformation {
-  fields: {
-    metadata: FieldMetadata,
-    /** Form field, returning a value and an error boolean if the value is invalid. */
-    [name: string]: Field | FieldMetadata
-  }
-  /** To handle field changes, with field validation. */
-  handleChange: (
-    /** Fields that has changed */
-    field: {
-      [name: string]: string | number
-    },
-    /** Optional list of validations to execute. The string must correspond to any of the validatorObject's validator */
+interface UseForm {
+  /**
+   * All of the form field values.
+   * Also contains information about
+   * invalid values.
+   */
+  fields: FieldValuesAndErrors
+  /** For handling field changes, with field validation. */
+  handleChange (
+    /** Object of fields that has changed. */
+    fields: Fields,
+    /**
+     * Optional list of validations to execute
+     * with the new field value(s).
+     * The strings must correspond to
+     * one of the validator in the validators object.
+     */
     validations?: string[]
-  ) => void
-  /** Simple submit function infused with full form validation, that fails if something is invalid or broken. */
+  ): any
+  handleChange (
+    /** Form event */
+    fields: React.FormEvent,
+    /**
+      * Optional list of validations to execute
+      * with the new field value(s).
+      * The strings must correspond to
+      * one of the validator in the validators object.
+      */
+    validations?: string[]
+  ): any
+  /**
+   * Simple submit function infused with full form validation,
+   * that fails if something is invalid or broken.
+   */
   handleSubmit: React.FormEventHandler
-  /** Tells if there is some async operation running in the form, like sending data to server. */
+  /**
+   * Tells if there is some async operation running in the form,
+   * like sending data to server. Can be used to for example disable
+   * the UI while something happens that we should wait for.
+   */
   loading: boolean
 }
 
-interface FieldMetadata {
-  /** If any of the fields did not pass validation, this is set to true. */
+interface FieldsMetadata {
+  /**
+   * If any of the fields did not pass validation,
+   * this is set to `true`.
+   */
   hasErrors: boolean
 }
 
 
-export interface Field {
+interface FieldValueAndError {
   /** The field's value. */
-  value: string | number
+  value: any
   /** `true` if the field value is invalid. */
   error?: boolean
 }
 
-/**TODO: */
-type SubmitFunction = ({
-  fields,
-  setLoading,
-  finish
-} : {
-  /** The fully validated form fields, ready to be sent to the database. */
-  fields: {
-    [key: string]: string | number
-  }
-  /** Control loading. */
+interface FieldValuesAndErrors {
+  /** Contains information about the fields. */
+  metadata: FieldsMetadata
+  [fieldKey: string]: FieldValueAndError
+}
+
+type SubmitFunction = (params : SubmitFunctionParams) => Promise<boolean>
+
+interface SubmitFunctionParams {
+  /**
+   * The fully validated form fields,
+   * ready to be sent to the database.
+   */
+  fields: Fields
+  /** Control loading state. */
   setLoading: (isLoading: boolean) => Function
-  /** Callback intended to call when all operation is finished. */
-  finish: () => Function
-}) => Promise<boolean>
+  /**
+   * Call it in the successful branch of your `submit` function.
+   * It will try to invoke `onNotify('submitSuccess')`
+   * and `onFinished` if was defined.
+   */
+  finish: Function
+}
 
 
-/**TODO: */
-type OnFinishedCallback = () => void
+type OnNotifyCallback = (
+  /** Type of notification */
+  type: 'validationError' | 'submitError' | 'submitSuccess',
+  /** If `type` is validationError, than key defines which validation failed. */
+  fieldKey?: string
+) => void
 
-/**TODO: */
-type OnNotifyCallback = () => void
 
 export default useForm

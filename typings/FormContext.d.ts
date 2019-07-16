@@ -23,7 +23,7 @@ export {
 interface FormProviderProps {
   children: React.ReactElement,
   /** Give the initial state of the forms */
-  initialState?: {
+  initialState: {
     [name: string]: Object
   }
 }
