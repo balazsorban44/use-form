@@ -192,3 +192,60 @@ it.skip('Throw error if name attribute is not specified on an input', () => {
   )
     .toThrow(new Error('Invalid name attribute on input. Should be a string but was .'))
 })
+
+
+describe('Submit', () => {
+  it('validations', () => {
+
+    const initialState = { form: { input1: 'valid', input2: 'validToo' } }
+
+    const submitMock = jest.fn()
+    const input1Validator = jest.fn().mockReturnValue(true)
+    const input2Validator = jest.fn().mockReturnValue(true)
+    const onNotify = jest.fn()
+
+    const Component = () => {
+      const form = useForm({
+        name: 'form',
+        validators: {
+          input1: input1Validator,
+          input2: input2Validator
+        },
+        submit: submitMock,
+        onNotify
+      })
+      return (
+        <form>
+          <input
+            value={form.fields.input1.value}
+            onChange={form.handleChange}
+          />
+          <input
+            value={form.fields.input2.value}
+            onChange={form.handleChange}
+          />
+          <button type="submit" onClick={form.handleSubmit}>Submit</button>
+        </form>
+      )
+    }
+    const { getByText } = render(<Component/>, { providerProps: { initialState } })
+
+    const submitButton = getByText(/Submit/)
+
+    fireEvent.click(submitButton)
+
+    expect(input1Validator).toBeCalledWith(initialState.form)
+    expect(input2Validator).toBeCalledWith(initialState.form)
+    expect(submitMock).toBeCalledWith({
+      fields: initialState.form,
+      finish: expect.any(Function),
+      setLoading: expect.any(Function)
+    })
+
+    jest.resetAllMocks()
+    input2Validator.mockReturnValue(false)
+    fireEvent.click(submitButton)
+
+    expect(onNotify).toBeCalledWith('submitError')
+  })
+})
