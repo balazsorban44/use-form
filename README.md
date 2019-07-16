@@ -44,7 +44,72 @@ npm install --save another-use-form-hook
 
 ## Usage
 
-> TODO:
+> NOTE: This section is a work in progress.
+
+This hook is intended to give a full solution for handling forms. From interdependent field value validations (meaning if a field value is dependent on anothers' values), to submitting the form, and providing information about when the UI should be unresponsive (loading of some kind of asnyc-like operation), in addition to notification "hooks" to be able to inform the users the most efficient way.
+
+Let's see a complex example, to understand how it works, and what are its capabilities:
+
+
+```jsx
+import React from "react"
+import ReactDOM from "react-dom"
+import useForm, {FormProvider} from "another-use-form-hook"
+
+/**
+ * NOTE: We are using date-fns for this example,
+ * but it is absolutly not a requirement.
+ */
+import {addDays, isAfter, differenceInDays} from "date-fns"
+
+
+const TODAY = new Date()
+
+
+const App = () => {
+  const form = useForm({
+    name: "form",
+    validator: {
+      arrival: // Earliest arrival tomorrow
+        ({arrival}) => isAfter(arrival, TODAY),
+      departure: // Earliest departure day after tomorrow
+        ({departure}) => isAfter(addDays(departure, 1), TODAY),
+      minOneNight: // Arrival and departure depends on each other to be valid.
+        ({arrival, departure}) => differenceInDays(departure, arrival) >= 1
+    }
+  })
+
+  return (
+    <form onSubmit={form.handleSubmit}>
+
+
+      <label htmlFor="arrival">
+        { form.fields.arrival.error ? "Invalid" : "" } arrival
+      </label>
+      
+      {/* With Current API */}
+      <input 
+        id="arrival"
+        name="arrival"
+        value={form.fields.arrival.value}
+        onChange={e => form.handleChange(e, ["minOneNight"])}
+      />
+
+    </form>
+  )
+}
+
+ReactDOM.render(
+  <FormProvider initialState={{
+    form: {
+      arrival: TODAY,
+      departure: addDays(TODAY, 1)
+    }
+  }}>
+    <App/>
+  </FormProvider>
+  , document.querySelector("#root"))
+```
 
 
 ## LICENSE
