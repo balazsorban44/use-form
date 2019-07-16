@@ -3,7 +3,6 @@ import validate from './validate'
 import FormContext from './FormContext'
 
 
-/** */
 export default function useForm ({
   name,
   submit,
@@ -40,20 +39,25 @@ export default function useForm ({
       validations = args[1]
     }
 
-    validate({
+
+    const errors = validate({
       form,
       validations,
       fields,
-      validatorObject,
-      handleError: errors => {
-        Object.entries(errors).forEach(([key, error]) => {
-          error && onNotify && onNotify('validationError', key)
+      validators
         })
+
         setErrors(e => ({ ...e, ...errors }))
+
+    if (onNotify) {
+      Object.keys(errors)
+        .filter(field => errors[field])
+        .forEach(field => {onNotify('validationError', field)})
       }
-    })
+
     dispatch({ type: name, payload: fields })
-  }, [dispatch, name, onNotify, validatorObject])
+
+  }, [dispatch, form, name, onNotify, validators])
 
   /**
    * Called when a form is submitted.
@@ -61,23 +65,21 @@ export default function useForm ({
    * before it is being sent.
    */
   const handleSubmit = useCallback(e => {
+    e.preventDefault && e.preventDefault()
+
     if (!loading) {
-      e.preventDefault && e.preventDefault()
-      const hasErrors = validate({
-        validations,
-        fields: form,
-        validatorObject,
-        handleError: (errors, hasErrors) => {
-          hasErrors && onNotify('submitError')
+      const errors = validate({ form, validators })
+
+      if (Object.values(errors).some(e => e)) {
           setErrors(e => ({ ...e, ...errors }))
+        onNotify && onNotify('submitError')
         }
-      })
-      if (!hasErrors) {
+      else {
         submit({
           fields: form,
           setLoading,
           finish: () => {
-            onNotify('submitSuccess')
+            onNotify && onNotify('submitSuccess')
             onFinished && onFinished()
           }
         })
@@ -85,13 +87,10 @@ export default function useForm ({
     }
   }, [
     // REVIEW: Find a better way to optimize here.
-    validations,
-    form, loading, onNotify, validatorObject,
-    submit, onFinished,
+    form, loading, onNotify, validators, submit, onFinished,
   ])
 
   if (process.env.NODE_ENV !== 'production' && !form) {
-
     throw new Error([
       `The initial state for "${name}" was undefined.`,
       'You can define an initialState in the FormProvider',
