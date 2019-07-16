@@ -5,13 +5,28 @@ import FormContext from './FormContext'
 
 export default function useForm ({
   name,
+  validators,
   submit,
-  onFinished,
-  onNotify,
-  validations=[],
-  validatorObject={},
-  context=null
+  onFinished = null,
+  onNotify = null,
+  context = null,
+  validations, // NOTE: Remove in next major bump.
+  validatorObject // NOTE: Remove in next major bump.
 }) {
+
+
+  // NOTE: Remove in next major bump.
+  if (process.env.NODE_ENV !== 'production') {
+    if (validatorObject) {
+      console.warn('validatorObject is being deprecated. Please use validators instead.')
+      validators = validatorObject
+    }
+    if (validations)
+      console.warn([
+        'validations is being deprecated. You do not have to define it anymore.',
+        'When submitting, all the validator functions defined in validators will be run.',
+      ].join(' '))
+  }
 
   const { dispatch, forms } = useContext(context || FormContext)
   const [errors, setErrors] = useState({})
@@ -26,19 +41,19 @@ export default function useForm ({
    * and also validates them.
    */
   const handleChange = useCallback((...args) => {
-    let fields={},
-        validations=[]
+    let fields = {}
+    let validations = []
     
-    if ("target" in args[0]) {
-      const {name, value} = args[0].target
-      if (!name)
-        throw new Error(`Invalid name attribute on input. Should be a string but was ${name}.`)
+    if ('target' in args[0]) {
+      const { name, value } = args[0].target
+      if (process.env.NODE_ENV !== 'production' && !name)
+        throw new Error(
+          `Invalid name attribute on input. Should be a string but was ${name}.`
+        )
       fields[name] = value
-    } else {
-      fields = args[0]
-      validations = args[1]
-    }
+    } else fields = args[0]
 
+    if (args[1]) validations = args[1]
 
     const errors = validate({
       form,
