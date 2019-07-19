@@ -93,9 +93,9 @@ export default function useForm ({
         submit({
           fields: form,
           setLoading,
-          finish: () => {
+          finish: (...args) => {
             onNotify && onNotify('submitSuccess')
-            onFinished && onFinished()
+            onFinished && onFinished(args)
           }
         })
       }
