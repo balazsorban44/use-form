@@ -22,7 +22,12 @@ export {
 
 interface FormProviderProps {
   children: React.ReactElement,
-  /** Give the initial state of the forms */
+  /** Give the initial state of the forms.
+   * 
+   * NOTE: It "can change", meaning  you can set a default value,
+   * and replace it with another value if you receive 
+   * this data asynchronously.
+   */
   initialState: {
     [name: string]: Object
   }
