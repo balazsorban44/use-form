@@ -15,17 +15,22 @@ export default function useForm ({
 }) {
 
 
-  // NOTE: Remove in next major bump.
   if (process.env.NODE_ENV !== 'production') {
+    // NOTE: Remove in next major bump.
     if (validatorObject) {
       console.warn('validatorObject is being deprecated. Please use validators instead.')
       validators = validatorObject
     }
+
+    // NOTE: Remove in next major bump.
     if (validations)
       console.warn([
         'validations is being deprecated. You do not have to define it anymore.',
         'When submitting, all the validator functions defined in validators will be run.',
       ].join(' '))
+
+    if (Object.prototype.toString.call(validators) !== '[object Object]')
+      throw new TypeError(`validators argument must be an object, but it was ${typeof validators}.`)
   }
 
   const { dispatch, forms } = useContext(context || FormContext)
@@ -42,8 +47,9 @@ export default function useForm ({
    */
   const handleChange = useCallback((...args) => {
     let fields = {}
-    let validations = []
+    let validations
 
+    try {
     if ('target' in args[0]) {
         const { name, value, type, checked } = args[0].target
 
@@ -51,6 +57,15 @@ export default function useForm ({
           throw new Error(`Invalid name attribute on input. Should be a string but was ${name}.`)
 
         fields[name] = type === 'checkbox' ? checked : value
+
+      } else if(Object.keys(Object.keys(args[0]).every(k => k in form))) fields = args[0]
+      else throw new TypeError('Invalid fields object. Are all the keys present in the form?')
+
+      if (
+        args[1] &&
+        Array.isArray(args[1]) &&
+        args[1].every(v => v in validators)
+      ) validations = args[1]
 
     const errors = validate({
       form,
@@ -68,6 +83,9 @@ export default function useForm ({
     }
 
     dispatch({ type: name, payload: fields })
+    } catch (error) {
+      console.error(error)
+    }
 
   }, [dispatch, form, name, onNotify, validators])
 
