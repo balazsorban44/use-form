@@ -25,7 +25,7 @@
     "react": ">=16.8"
   },
   "dependencies": {
-    "@babel/runtime": "^7.5.4"
+    "@babel/runtime": "^7.5.5"
   },
   "devDependencies": {
     "@babel/cli": "^7.5.5",
@@ -44,7 +44,7 @@
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
     "react-test-renderer": "^16.8.6",
-    "semantic-release": "^15.13.18"
+    "semantic-release": "^15.13.19"
   },
   "scripts": {
     "build": "kcd-scripts build && kcd-scripts build --bundle --no-clean",
