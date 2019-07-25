@@ -69,28 +69,35 @@ const TODAY = new Date()
 const App = () => {
   const form = useForm({
     name: "form",
-    validator: {
-      arrival: // Earliest arrival tomorrow
-        ({arrival}) => isAfter(arrival, TODAY),
-      departure: // Earliest departure day after tomorrow
-        ({departure}) => isAfter(addDays(departure, 1), TODAY),
-      minOneNight: // Arrival and departure depends on each other to be valid.
-        ({arrival, departure}) => differenceInDays(departure, arrival) >= 1
+    validators: {
+      // Earliest arrival tomorrow
+      arrival: ({arrival}) => isAfter(arrival, TODAY),
+      // Earliest departure day after tomorrow
+      departure: ({departure}) => isAfter(addDays(departure, 1), TODAY),
+      // Arrival and departure depends on each other to be valid.
+      minOneNight: ({arrival, departure}) => differenceInDays(departure, arrival) >= 1
     }
   })
 
   return (
     <form onSubmit={form.handleSubmit}>
 
-
       <label htmlFor="arrival">
         { form.fields.arrival.error ? "Invalid" : "" } arrival
       </label>
-      
-      {/* With Current API */}
       <input 
         id="arrival"
         name="arrival"
+        value={form.fields.arrival.value}
+        onChange={e => form.handleChange(e, ["minOneNight"])}
+      />
+
+      <label htmlFor="departure">
+        { form.fields.departure.error ? "Invalid" : "" } departure
+      </label>
+      <input 
+        id="departure"
+        name="departure"
         value={form.fields.arrival.value}
         onChange={e => form.handleChange(e, ["minOneNight"])}
       />
