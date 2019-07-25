@@ -50,7 +50,7 @@
     "build": "kcd-scripts build && kcd-scripts build --bundle --no-clean",
     "validate": "kcd-scripts validate",
     "test": "kcd-scripts test",
-    "test:coverage": "kcd-scripts test --coverage --coverageReporters html --watch",
+    "test:coverage": "kcd-scripts test --coverage --coverageReporters html --watchAll",
     "semantic-release": "semantic-release",
     "setup": "npm install && npm run validate -s"
   },
