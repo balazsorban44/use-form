@@ -1,18 +1,15 @@
 import React from 'react'
 
-import { render as originalRender } from '@testing-library/react'
+import { render as originalRender, fireEvent, wait } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 import '@testing-library/react/cleanup-after-each'
 
 import { FormProvider } from '../FormContext'
 import useForm from '../useForm'
-import { fireEvent } from '@testing-library/react/dist'
 
 beforeEach(() => {
-  jest.spyOn(console, 'error')
-  console.error.mockImplementation(() => {})
-  jest.spyOn(console, 'warn')
-  console.warn.mockImplementation(() => {})
+  jest.spyOn(console, 'error').mockImplementation(() => {})
+  jest.spyOn(console, 'warn').mockImplementation(() => {})
 })
 
 afterEach(() => {
@@ -47,7 +44,7 @@ describe('deprecation warnings for changed parameters', () => {
 
   it('validations -> Ø', () => {
     const Component = () => {
-      useForm({ name: 'form' , validations: [] })
+      useForm({ name: 'form' , validations: [], validators: {} })
       return null
     }
     render(<Component/>, { providerProps: { initialState: { form: {} } } })
@@ -68,7 +65,7 @@ describe('deprecation warnings for changed parameters', () => {
 it('Initial state is correctly set', () => {
   const initialState = { form: { input: 'Default value' } }
   const Component = () => {
-    const form = useForm({ name: 'form' })
+    const form = useForm({ name: 'form', validators: {} })
     return <input name="input" value={form.fields.input.value}/>
   }
 
@@ -80,12 +77,11 @@ it('Initial state is correctly set', () => {
 
 })
 
-
-it.skip('Throws an error if an input field has no defined validator', () => {
+it('Throws an error if an input field has no defined validator', () => {
   const initialState = { form: { input: 'Default value' } }
 
   const Component = () => {
-    const form = useForm({ name: 'form' })
+    const form = useForm({ name: 'form', validators: {} })
     return (
       <input
         name="input"
@@ -99,8 +95,10 @@ it.skip('Throws an error if an input field has no defined validator', () => {
 
   const input = getByDisplayValue(initialState.form.input)
 
-  expect(() => fireEvent.change(input, { target: { name: 'input', value: '' } }))
-    .toThrow(new Error('input has no validator in validators'))
+  fireEvent.change(input, { target: { name: 'input', value: '' } })
+
+  expect(console.error).toBeCalledWith(new Error('input has no validator defined in validators.'))
+
 })
 
 
@@ -170,11 +168,11 @@ it('Error set to `true` on input if a change does not pass validation.', () => {
 })
 
 
-it.skip('Throw error if name attribute is not specified on an input', () => {
+it('Throw error if name attribute is not specified on an input', () => {
   const initialState = { form: { input: 'Default value' } }
 
   const Component = () => {
-    const form = useForm({ name: 'form' })
+    const form = useForm({ name: 'form', validators: {} })
     return (
       <input
         value={form.fields.input.value}
@@ -187,10 +185,44 @@ it.skip('Throw error if name attribute is not specified on an input', () => {
 
   const input = getByDisplayValue(initialState.form.input)
 
-  expect(
-    () => fireEvent.change(input, { target: { value: '' } })
-  )
-    .toThrow(new Error('Invalid name attribute on input. Should be a string but was .'))
+  fireEvent.change(input, { target: { value: '' } })
+  expect(console.error)
+    .toBeCalledWith(new Error('Invalid name attribute on input. Should be a string but was .'))
+})
+
+it('Checkboxes\' checked prop used as value when form event is passed to handleChange', () => {
+  const initialState = { form: { input: false } }
+  const Component = () => {
+    const form = useForm({
+      name: 'form',
+      validators: { input: () => true }
+    })
+
+    return (
+      <input
+        name="input"
+        type="checkbox"
+        onChange={form.handleChange}
+        value={form.fields.input.value}
+        checked={form.fields.input.value}
+      />
+    )
+  }
+
+  const { getByDisplayValue } = render(<Component/>, { providerProps: { initialState } })
+
+  const input = getByDisplayValue('false')
+
+  fireEvent.click(input, {
+    target: {
+      name: 'input',
+      type: 'checkbox',
+      checked: false
+    }
+  })
+
+  expect(getByDisplayValue('true')).toBeInTheDocument()
+
 })
 
 
