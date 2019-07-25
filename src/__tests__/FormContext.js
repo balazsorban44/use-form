@@ -12,7 +12,7 @@ it('setting defaults asnyc', () => {
 
 
   const ChildComponent = () => {
-    const { fields } = useForm({ name: 'form' })
+    const { fields } = useForm({ name: 'form', validators: {} })
 
 
     return fields.input.value
@@ -44,6 +44,5 @@ it('setting defaults asnyc', () => {
 
   // new initialState is fetched
   expect(getByText('VALUE')).toBeInTheDocument()
-
 
 })
