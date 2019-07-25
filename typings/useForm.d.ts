@@ -1,4 +1,4 @@
-import Validators, { Fields, FieldKey } from "./validate"
+import Validators from "./validate"
 
 
 export interface Fields {
@@ -64,7 +64,7 @@ interface UseForm {
    */
   fields: FieldValuesAndErrors
   /** For handling field changes, with field validation. */
-  handleChange (
+  handleChange(
     /** Object of fields that has changed. */
     fields: Fields,
     /**
@@ -77,7 +77,7 @@ interface UseForm {
   ): any
   handleChange (
     /** Form event */
-    fields: React.FormEvent,
+    event: React.FormEvent,
     /**
       * Optional list of validations to execute
       * with the new field value(s).
@@ -121,7 +121,7 @@ interface FieldValuesAndErrors {
   [fieldKey: string]: FieldValueAndError
 }
 
-type SubmitFunction = (params : SubmitFunctionParams) => Promise<boolean>
+type SubmitFunction = ({fields, setLoading, finish} : SubmitFunctionParams) => Promise<boolean>
 
 interface SubmitFunctionParams {
   /**
