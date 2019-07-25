@@ -45,15 +45,12 @@ export default function useForm ({
     let validations = []
 
     if ('target' in args[0]) {
-      const { name, value } = args[0].target
-      if (process.env.NODE_ENV !== 'production' && !name)
-        throw new Error(
-          `Invalid name attribute on input. Should be a string but was ${name}.`
-        )
-      fields[name] = value
-    } else fields = args[0]
+        const { name, value, type, checked } = args[0].target
 
-    if (args[1]) validations = args[1]
+      if (process.env.NODE_ENV !== 'production' && !name)
+          throw new Error(`Invalid name attribute on input. Should be a string but was ${name}.`)
+
+        fields[name] = type === 'checkbox' ? checked : value
 
     const errors = validate({
       form,
