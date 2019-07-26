@@ -1,13 +1,11 @@
 {
   "name": "another-use-form-hook",
   "version": "0.0.0-semantically-released",
-  "maintainers": [
-    {
-      "name": "Balázs Orbán",
-      "email": "info@balazsorban.com",
-      "url": "https://balazsorban.com"
-    }
-  ],
+  "maintainers": [{
+    "name": "Balázs Orbán",
+    "email": "info@balazsorban.com",
+    "url": "https://balazsorban.com"
+  }],
   "keywords": [
     "react",
     "hook",
@@ -48,10 +46,10 @@
     "semantic-release": "^15.13.19"
   },
   "scripts": {
-    "build": "kcd-scripts build && kcd-scripts build --bundle --no-clean",
+    "build": "kcd-scripts build --bundle",
     "validate": "kcd-scripts validate",
-    "test": "kcd-scripts test",
-    "test:coverage": "kcd-scripts test --coverage --coverageReporters html --watchAll",
+    "test": "kcd-scripts test --verbose",
+    "test:coverage": "yarn test --coverage --coverageReporters html --watchAll",
     "semantic-release": "semantic-release",
     "setup": "npm install && npm run validate -s"
   },
@@ -69,13 +67,12 @@
   },
   "homepage": "https://github.com/balazsorban44/use-form#readme",
   "jest": {
-    "coverageThreshold": {
-      "global": {
-        "branches": 0,
-        "functions": 0,
-        "lines": 0,
-        "statements": 0
-      }
-    }
+    "setupFilesAfterEnv": [
+      "@testing-library/react/cleanup-after-each",
+      "@testing-library/jest-dom/extend-expect"
+    ],
+    "collectCoverageFrom": [
+      "src/**/{!(test-utils|index),}.js"
+    ]
   }
 }
