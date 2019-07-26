@@ -12,8 +12,7 @@ export default function useForm ({
   onFinished = null,
   onNotify = null,
   context = null,
-  validations, // NOTE: Remove in next major bump.
-  validatorObject // NOTE: Remove in next major bump.
+  ...rest
 }) {
 
 

@@ -3,15 +3,12 @@ import React, { createContext, useReducer, useEffect, useRef } from 'react'
 const FormContext = createContext()
 
 function reducer(state, { type, payload }) {
-  if (typeof type !== 'string')
-    throw TypeError(`Type ${type} must be a string, it was: ${typeof type}`)
-
-  if (type in state) return { ...state, [type]: { ...state[type], ...payload } }
-
-  if (type === 'SET_DEFAULT') return { ...payload }
+  return (type in state) ?
+    { ...state, [type]: { ...state[type], ...payload } } :
+    { ...state, ...payload }
 }
 
-function FormProvider({ children, initialState }) {
+function FormProvider({ children, initialState = {} }) {
   const [forms, dispatch] = useReducer(reducer, initialState)
 
 
@@ -22,7 +19,7 @@ function FormProvider({ children, initialState }) {
   const initialStateRef = useRef(initialState)
   useEffect(() => {
     if (JSON.stringify(initialState) !== JSON.stringify(initialStateRef.current)) {
-      dispatch({ type: 'SET_DEFAULT', payload: initialState })
+      dispatch({ payload: initialState })
     }
   }, [initialState])
 
