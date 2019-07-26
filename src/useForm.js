@@ -1,7 +1,9 @@
-import { useContext, useCallback, useState } from 'react'
+import { useContext, useCallback, useState, useEffect } from 'react'
 import validate from './validate'
 import FormContext from './FormContext'
 
+
+const isObject = o => Object.prototype.toString.call(o) === '[object Object]'
 
 export default function useForm ({
   name,
@@ -15,29 +17,61 @@ export default function useForm ({
 }) {
 
 
+  const { dispatch, forms } = useContext(context || FormContext)
+
+  const form = forms[name]
+
+  const [errors, setErrors] = useState({})
+  const [loading, setLoading] = useState(false)
+
+
   if (process.env.NODE_ENV !== 'production') {
     // NOTE: Remove in next major bump.
-    if (validatorObject) {
+    if (rest.validatorObject) {
       console.warn('validatorObject is being deprecated. Please use validators instead.')
-      validators = validatorObject
+      validators = rest.validatorObject
     }
 
     // NOTE: Remove in next major bump.
-    if (validations)
+    if (rest.validations)
       console.warn([
         'validations is being deprecated. You do not have to define it anymore.',
         'When submitting, all the validator functions defined in validators will be run.',
       ].join(' '))
 
-    if (Object.prototype.toString.call(validators) !== '[object Object]')
-      throw new TypeError(`validators argument must be an object, but it was ${typeof validators}.`)
+
+    if (typeof name !== 'string')
+      throw new TypeError(`name must be a string, but it was ${typeof name}.`)
+
+    if (!isObject(form)) {
+      throw new Error([
+        `The initial state for "${name}" is invalid.`,
+        'You can define an initialState in the FormProvider',
+        'like this: <FormProvider options={{initialState: {formName: /*initial values here*/}}}>...',
+      ].join(' '))
+    }
+
+    if (!isObject(validators)) {
+      throw new TypeError(`validators must be an object, but it was ${typeof validators}.`)
+    } else {
+      const validatorKeys = Object.keys(validators)
+      Object.keys(form).forEach(key => {
+        if (!validatorKeys.includes(key))
+          throw new TypeError(`You forgot to define a validator in "${name}" for the field: ${key}`)
+        else if(
+          typeof validators[key] !== 'function' ||
+          typeof validators[key](form) !== 'boolean'
+        ) {
+          throw new TypeError([
+            `The validator for ${key} in validators`,
+            'did not return a boolean.',
+            'To validate a field, define a function that',
+            'returns true if valid, and false if invalid.',
+          ].join(' '))
+        }
+      })
+    }
   }
-
-  const { dispatch, forms } = useContext(context || FormContext)
-  const [errors, setErrors] = useState({})
-  const form = forms[name]
-
-  const [loading, setLoading] = useState(false)
 
 
   /**
@@ -50,39 +84,40 @@ export default function useForm ({
     let validations
 
     try {
-    if ('target' in args[0]) {
+      if ('target' in args[0]) {
         const { name, value, type, checked } = args[0].target
 
-      if (process.env.NODE_ENV !== 'production' && !name)
-          throw new Error(`Invalid name attribute on input. Should be a string but was ${name}.`)
+        if (process.env.NODE_ENV !== 'production' && !Object.keys(form).includes(name))
+          throw new Error(`Invalid name attribute on input. "${name}" must be present in the form.`)
 
         fields[name] = type === 'checkbox' ? checked : value
 
-      } else if(Object.keys(Object.keys(args[0]).every(k => k in form))) fields = args[0]
-      else throw new TypeError('Invalid fields object. Are all the keys present in the form?')
-
+      } else {
+        if(Object.keys(args[0]).every(k => k in form)) fields = args[0]
+        else throw new TypeError('Invalid fields object. Are all the keys present in the form?')
+      }
       if (
         args[1] &&
         Array.isArray(args[1]) &&
         args[1].every(v => v in validators)
       ) validations = args[1]
 
-    const errors = validate({
-      form,
-      validations,
-      fields,
-      validators
-    })
+      const errors = validate({
+        form,
+        validations,
+        fields,
+        validators
+      })
 
-    setErrors(e => ({ ...e, ...errors }))
+      setErrors(e => ({ ...e, ...errors }))
 
-    if (onNotify) {
-      Object.keys(errors)
-        .filter(field => errors[field])
-        .forEach(field => {onNotify('validationError', field)})
-    }
+      if (onNotify) {
+        Object.keys(errors)
+          .filter(field => errors[field])
+          .forEach(field => {onNotify('validationError', field)})
+      }
 
-    dispatch({ type: name, payload: fields })
+      dispatch({ type: name, payload: fields })
     } catch (error) {
       console.error(error)
     }
@@ -119,14 +154,6 @@ export default function useForm ({
     // REVIEW: Find a better way to optimize here.
     form, loading, onNotify, validators, submit, onFinished,
   ])
-
-  if (process.env.NODE_ENV !== 'production' && !form) {
-    throw new Error([
-      `The initial state for "${name}" was undefined.`,
-      'You can define an initialState in the FormProvider',
-      'like this: <FormProvider options={{initialState: {formName: /*initial values here*/}}}>...',
-    ].join(' '))
-  }
 
   return ({
     // Concat errors with field values
