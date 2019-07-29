@@ -46,7 +46,7 @@
     "semantic-release": "^15.13.19"
   },
   "scripts": {
-    "build": "kcd-scripts build --bundle",
+    "build": "kcd-scripts build && kcd-scripts build --bundle --no-clean",
     "validate": "kcd-scripts validate",
     "test": "kcd-scripts test --verbose",
     "test:coverage": "yarn test --coverage --coverageReporters html --watchAll",
