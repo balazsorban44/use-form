@@ -81,7 +81,7 @@ it('invalid initialState throws error', () => {
   expect(() => render(<Component/>)).toThrow([
     'The initial state for "form" is invalid.',
     'You can define an initialState in the FormProvider like this:',
-    'like this: <FormProvider initialState={{formName: /*initial values here*/}}>...',
+    '<FormProvider initialState={{formName: /*initial values here*/}}>...',
   ].join(' '))
 
 

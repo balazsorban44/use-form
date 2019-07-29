@@ -45,8 +45,8 @@ export default function useForm ({
     if (!isObject(form)) {
       throw new Error([
         `The initial state for "${name}" is invalid.`,
-        'You can define an initialState in the FormProvider',
-        'like this: <FormProvider initialState={{formName: /*initial values here*/}}>...',
+        'You can define an initialState in the FormProvider like this:',
+        '<FormProvider initialState={{formName: /*initial values here*/}}>...',
       ].join(' '))
     }
 
