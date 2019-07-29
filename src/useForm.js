@@ -46,7 +46,7 @@ export default function useForm ({
       throw new Error([
         `The initial state for "${name}" is invalid.`,
         'You can define an initialState in the FormProvider',
-        'like this: <FormProvider options={{initialState: {formName: /*initial values here*/}}}>...',
+        'like this: <FormProvider initialState={{formName: /*initial values here*/}}>...',
       ].join(' '))
     }
 
