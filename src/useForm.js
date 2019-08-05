@@ -74,7 +74,7 @@ export default function useForm ({
         value: key in form ? form[key] : undefined,
         error: key in errors ? errors[key] : false
       }
-    }))
+    }), {})
 
 
   /**
