@@ -49,10 +49,6 @@ interface UseFormParams {
    * @see https://github.com/balazsorban44/use-form#usage
    */
   context?: React.Context<any>
-  /** @deprecated Not needed anymore. */
-  validations?: string[]
-  /** @deprecated Plase use `validators` instead. */
-  validatorObject: Validators
 }
 
 
@@ -63,7 +59,13 @@ interface UseForm {
    * invalid values.
    */
   fields: FieldValuesAndErrors
-  /** For handling field changes, with field validation. */
+  /**
+   * The change handler.
+   * Can take multiple values at once as well. In that case,
+   * the first parameter must be an object that will be
+   * merged with the form. It also validates the field(s)
+   * that are passed.
+   */
   handleChange(
     /** Object of fields that has changed. */
     fields: Fields,
@@ -131,6 +133,7 @@ interface SubmitFunctionParams {
   fields: Fields
   /** Control loading state. */
   setLoading: (isLoading: boolean) => Function
+  notify: OnNotifyCallback<SubmitNotificationType, keyof Fields>
   /**
    * Call it in the successful branch of your `submit` function.
    * It will try to invoke `onNotify('submitSuccess')`
@@ -139,13 +142,22 @@ interface SubmitFunctionParams {
   finish: Function
 }
 
+type SubmitNotificationType = 'submitError' |
+'submitSuccess'
 
-type OnNotifyCallback = (
+type NotificationType = 
+  'validationError' |
+  SubmitNotificationType
+
+
+
+export type OnNotifyCallback<T=NotificationType, F=string> = (
   /** Type of notification */
-  type: 'validationError' | 'submitError' | 'submitSuccess',
+  type: T,
   /** If `type` is validationError, than key defines which validation failed. */
-  fieldKey?: string
+  fieldKey?: F
 ) => void
 
 
 export default useForm
+

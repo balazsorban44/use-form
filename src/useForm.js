@@ -1,7 +1,9 @@
-import { useContext, useCallback, useState, useEffect } from 'react'
-import validate from './validate'
+import { useContext, useCallback, useState, useMemo } from 'react'
 import FormContext from './FormContext'
+import validate from './validate'
 import isObject from './utils/isObject'
+import inputPropGenerators from './inputPropGenerators'
+import convert from './utils/convert'
 
 import { version } from '../package.json'
 if (process.env.NODE_ENV !== 'production' && version.includes('beta')) {
@@ -11,38 +13,38 @@ if (process.env.NODE_ENV !== 'production' && version.includes('beta')) {
     'This is highly experimental, and probably WILL crash and CONTAINS bugs 🐛',
     '⚠  CAUTION!  ⚠ ',
   ].join('\n'))
-    }
+}
 
 
 const handleDevErrors = (name, form, validators) => {
-    if (typeof name !== 'string')
-      throw new TypeError(`name must be a string, but it was ${typeof name}.`)
+  if (typeof name !== 'string')
+    throw new TypeError(`name must be a string, but it was ${typeof name}.`)
 
-    if (!isObject(form)) {
-      throw new Error([
-        `The initial state for "${name}" is invalid.`,
-        'You can define an initialState in the FormProvider like this:',
-        '<FormProvider initialState={{formName: /*initial values here*/}}>...',
-      ].join(' '))
-    }
-
-    if (!isObject(validators)) {
-      throw new TypeError(`validators must be an object, but it was ${typeof validators}.`)
-    } else {
-      Object.keys(form).forEach(key => {
-      if(
-          typeof validators[key] !== 'function' ||
-          typeof validators[key](form) !== 'boolean'
-        ) {
-          throw new TypeError([
-          `The validator for ${key} in validators is invalid.`,
-            'To validate a field, define a function that',
-            'returns true if valid, and false if invalid.',
-          ].join(' '))
-        }
-      })
-    }
+  if (!isObject(form)) {
+    throw new Error([
+      `The initial state for "${name}" is invalid.`,
+      'You can define an initialState in the FormProvider like this:',
+      '<FormProvider initialState={{formName: /*initial values here*/}}>...',
+    ].join(' '))
   }
+
+  if (!isObject(validators)) {
+    throw new TypeError(`validators must be an object, but it was ${typeof validators}.`)
+  } else {
+    Object.keys(form).forEach(key => {
+      if(
+        typeof validators[key] !== 'function' ||
+        typeof validators[key](form) !== 'boolean'
+      ) {
+        throw new TypeError([
+          `The validator for ${key} in validators is invalid.`,
+          'To validate a field, define a function that',
+          'returns true if valid, and false if invalid.',
+        ].join(' '))
+      }
+    })
+  }
+}
 
 export default function useForm ({
   name,
@@ -52,6 +54,10 @@ export default function useForm ({
   onNotify = null
 }) {
 
+  // Setup
+  const { dispatch, forms } = useContext(FormContext)
+  const form = forms[name]
+  const [errors, setErrors] = useState({})
 
 
   // Notify developer early on, if some of the required params are wrong.
@@ -60,10 +66,22 @@ export default function useForm ({
   }
 
 
+  // Concat errors with field values
+  const fields = [...Object.keys(form), ...Object.keys(errors)]
+    .reduce((acc, key) => ({
+      ...acc,
+      [key]: {
+        value: key in form ? form[key] : undefined,
+        error: key in errors ? errors[key] : false
+      }
+    }))
+
+
   /**
-   * Respond to input changes, like text fields, buttons etc.
-   * Handles multiple field changes at once,
-   * and also validates them.
+   * The change handler.
+   * Can take multiple values at once as well. In that case,
+   * the first parameter must be an object that will be
+   * merged with the form.
    */
   const handleChange = useCallback((...args) => {
     let fields = {}
@@ -100,11 +118,8 @@ export default function useForm ({
 
       setErrors(e => ({ ...e, ...errors }))
 
-      if (onNotify) {
-        Object.keys(errors)
-          .filter(field => errors[field])
-          .forEach(field => {onNotify('validationError', field)})
-      }
+      const validationErrors = Object.keys(errors).filter(field => errors[field])
+      validationErrors.length && onNotify?.('validationErrors', validationErrors)
 
       dispatch({ type: name, payload: fields })
     } catch (error) {
@@ -112,6 +127,14 @@ export default function useForm ({
     }
 
   }, [dispatch, form, name, onNotify, validators])
+
+  const [loading, setLoading] = useState(false)
+
+  /**
+   * Run the validator on the given fields
+   * @param {Object?} fields - defaults to the entire form
+   */
+  const validateFields = useCallback((fields = form) => validate({ fields, validators }), [form, validators])
 
   /**
    * Called when a form is submitted.
@@ -121,42 +144,47 @@ export default function useForm ({
   const handleSubmit = useCallback(e => {
     e && e.preventDefault && e.preventDefault()
 
-    if (!loading) {
-      const errors = validate({ fields: form, validators })
+    const errors = validateFields()
+    setErrors(e => ({ ...e, ...errors }))
 
-      if (Object.values(errors).some(e => e)) {
-        setErrors(e => ({ ...e, ...errors }))
-        onNotify && onNotify('submitError')
+    const _errors = Object.values(errors).filter(e => e)
+    if (_errors.length) onNotify?.('submitError', _errors)
+
+    else {
+      const submitParams = {
+        fields: form,
+        setLoading
       }
-      else {
-        return submit({
-          fields: form,
-          setLoading,
-          finish: (...args) => {
-            onNotify && onNotify('submitSuccess')
-            onFinished && onFinished(args)
-          }
-        })
+
+      if (onNotify) {
+        submitParams.notify = function notify(type, ...args) {
+          if (
+            process.env.NODE_ENV !== 'production' &&
+            !['submitSuccess', 'submitError'].includes(type)
+          ) throw new TypeError('notify inside handleSubmit must be either "submitSuccess" or "submitError"')
+          else onNotify(type, ...args)
+        }
       }
+
+      if (onFinished) submitParams.finish = onfinished
+
+      return submit(submitParams)
     }
-  }, [
-    // REVIEW: Find a better way to optimize here.
-    form, loading, onNotify, validators, submit, onFinished,
-  ])
+  }, [validateFields, onNotify, form, onFinished, submit])
+
+
+  const inputs = useMemo(() => inputPropGenerators(form, handleChange), [form, handleChange])
+
 
   return ({
-    // Concat errors with field values
-    fields: Object.entries(form).reduce((acc, [key, value]) => {
-      const field = { value }
-      if (key in errors) {
-        field.error = errors[key]
-        if (errors[key]) acc.metadata = { hasErrors: true }
-      }
-      acc[key] = field
-      return acc
-    }, { metadata: { hasErrors: false } }),
+    fields,
+
     handleChange,
+
+    loading,
+    validateFields,
     handleSubmit,
-    loading
+
+    inputs
   })
 }
