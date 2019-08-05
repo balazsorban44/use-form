@@ -1,44 +1,20 @@
 import { useContext, useCallback, useState, useEffect } from 'react'
 import validate from './validate'
 import FormContext from './FormContext'
+import isObject from './utils/isObject'
 
-
-const isObject = o => Object.prototype.toString.call(o) === '[object Object]'
-
-export default function useForm ({
-  name,
-  validators,
-  submit,
-  onFinished = null,
-  onNotify = null,
-  context = null,
-  ...rest
-}) {
-
-
-  const { dispatch, forms } = useContext(context || FormContext)
-
-  const form = forms[name]
-
-  const [errors, setErrors] = useState({})
-  const [loading, setLoading] = useState(false)
-
-
-  if (process.env.NODE_ENV !== 'production') {
-    // NOTE: Remove in next major bump.
-    if (rest.validatorObject) {
-      console.warn('validatorObject is being deprecated. Please use validators instead.')
-      validators = rest.validatorObject
+import { version } from '../package.json'
+if (process.env.NODE_ENV !== 'production' && version.includes('beta')) {
+  console.warn([
+    '⚠  CAUTION!  ⚠ ',
+    `You are using another-use-form-hook@${version}.`,
+    'This is highly experimental, and probably WILL crash and CONTAINS bugs 🐛',
+    '⚠  CAUTION!  ⚠ ',
+  ].join('\n'))
     }
 
-    // NOTE: Remove in next major bump.
-    if (rest.validations)
-      console.warn([
-        'validations is being deprecated. You do not have to define it anymore.',
-        'When submitting, all the validator functions defined in validators will be run.',
-      ].join(' '))
 
-
+const handleDevErrors = (name, form, validators) => {
     if (typeof name !== 'string')
       throw new TypeError(`name must be a string, but it was ${typeof name}.`)
 
@@ -53,23 +29,34 @@ export default function useForm ({
     if (!isObject(validators)) {
       throw new TypeError(`validators must be an object, but it was ${typeof validators}.`)
     } else {
-      const validatorKeys = Object.keys(validators)
       Object.keys(form).forEach(key => {
-        if (!validatorKeys.includes(key))
-          throw new TypeError(`You forgot to define a validator in "${name}" for the field: ${key}`)
-        else if(
+      if(
           typeof validators[key] !== 'function' ||
           typeof validators[key](form) !== 'boolean'
         ) {
           throw new TypeError([
-            `The validator for ${key} in validators`,
-            'did not return a boolean.',
+          `The validator for ${key} in validators is invalid.`,
             'To validate a field, define a function that',
             'returns true if valid, and false if invalid.',
           ].join(' '))
         }
       })
     }
+  }
+
+export default function useForm ({
+  name,
+  validators,
+  submit,
+  onFinished = null,
+  onNotify = null
+}) {
+
+
+
+  // Notify developer early on, if some of the required params are wrong.
+  if (process.env.NODE_ENV !== 'production') {
+    handleDevErrors(name, forms, validators)
   }
 
 
@@ -89,17 +76,20 @@ export default function useForm ({
         if (process.env.NODE_ENV !== 'production' && !Object.keys(form).includes(name))
           throw new Error(`Invalid name attribute on input. "${name}" must be present in the form.`)
 
-        fields[name] = type === 'checkbox' ? checked : value
+        fields[name] = convert(type, value, checked, form[name])
 
       } else {
-        if(Object.keys(args[0]).every(k => k in form)) fields = args[0]
-        else throw new TypeError('Invalid fields object. Are all the keys present in the form?')
+        if(Object.keys(args[0]).every(k => k in form))
+          fields = args[0]
+        else if(process.env.NODE_ENV !== 'production')
+          throw new TypeError('Invalid fields object. Are all the keys present in the form?')
       }
-      if (
-        args[1] &&
-        Array.isArray(args[1]) &&
-        args[1].every(v => v in validators)
-      ) validations = args[1]
+      if (Array.isArray(args[1])) {
+        if (process.env.NODE_ENV !== 'production' && args[1].some(v => !(v in validators))) {
+          throw new Error(`Some of the validations (${validations}) are not present in the validators object.`)
+        }
+        validations = args[1]
+      }
 
       const errors = validate({
         form,
