@@ -1,11 +1,12 @@
 {
   "name": "another-use-form-hook",
-  "version": "0.0.0-semantically-released",
-  "maintainers": [{
+  "maintainers": [
+    {
     "name": "Balázs Orbán",
     "email": "info@balazsorban.com",
     "url": "https://balazsorban.com"
-  }],
+    }
+  ],
   "keywords": [
     "react",
     "hook",
@@ -28,6 +29,8 @@
   "devDependencies": {
     "@babel/cli": "^7.5.5",
     "@babel/core": "^7.5.5",
+    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.4.4",
+    "@babel/plugin-proposal-optional-chaining": "^7.2.0",
     "@babel/preset-env": "^7.5.5",
     "@babel/preset-react": "^7.0.0",
     "@testing-library/jest-dom": "^4.0.0",
