@@ -139,7 +139,7 @@ export default function useForm ({
         onNotify && onNotify('submitError')
       }
       else {
-        submit({
+        return submit({
           fields: form,
           setLoading,
           finish: (...args) => {
