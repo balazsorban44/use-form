@@ -83,7 +83,7 @@ const App = () => {
     <form onSubmit={form.handleSubmit}>
 
       {/* With current (2.x) API */}
-      
+
       <label htmlFor="arrival">
         { form.fields.arrival.error ? "Invalid" : "" } arrival
       </label>
@@ -111,7 +111,7 @@ const App = () => {
       </label>
       <input
         { ...form.inputs.date("departure")
-        onChange={e => form.handleChange(e, ["minOneNight])}
+        onChange={e => form.handleChange(e, ["minOneNight"])}
       />
 
       <label htmlFor="email">{ form.errors.email ? "Invalid" : "" } email</label>
