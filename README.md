@@ -82,6 +82,8 @@ const App = () => {
   return (
     <form onSubmit={form.handleSubmit}>
 
+      {/* With current (2.x) API */}
+      
       <label htmlFor="arrival">
         { form.fields.arrival.error ? "Invalid" : "" } arrival
       </label>
@@ -101,6 +103,19 @@ const App = () => {
         value={form.fields.arrival.value}
         onChange={e => form.handleChange(e, ["minOneNight"])}
       />
+
+      {/* With new API (available from 3.0) */}
+      
+      <label htmlFor="departure">
+        { form.errors.departure ? "Invalid" : "" } departure
+      </label>
+      <input
+        { ...form.inputs.date("departure")
+        onChange={e => form.handleChange(e, ["minOneNight])}
+      />
+
+      <label htmlFor="email">{ form.errors.email ? "Invalid" : "" } email</label>
+      <input { ...form.inputs.email("email") }/>
 
     </form>
   )
