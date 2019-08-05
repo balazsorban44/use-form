@@ -129,7 +129,7 @@ export default function useForm ({
    * before it is being sent.
    */
   const handleSubmit = useCallback(e => {
-    e.preventDefault && e.preventDefault()
+    e && e.preventDefault && e.preventDefault()
 
     if (!loading) {
       const errors = validate({ fields: form, validators })
