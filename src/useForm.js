@@ -62,7 +62,7 @@ export default function useForm ({
 
   // Notify developer early on, if some of the required params are wrong.
   if (process.env.NODE_ENV !== 'production') {
-    handleDevErrors(name, forms, validators)
+    handleDevErrors(name, form, validators)
   }
 
 
