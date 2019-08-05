@@ -1,59 +1,6 @@
 import React from 'react'
 import { render, fireEvent, cleanup } from '../test-utils'
-
 import useForm from '../useForm'
-
-
-describe('warns about future changes', () => {
-  it('validatorObject changed to validators', () => {
-    const Component = () => {
-      useForm({ name: 'form' , validatorObject: {} })
-      return null
-    }
-    render(<Component/>, { initialState: { form: {} } } )
-    expect(console.warn).toBeCalledWith('validatorObject is being deprecated. Please use validators instead.')
-
-    console.warn.mockReset()
-    process.env.NODE_ENV = 'production'
-    render(<Component/>, { initialState: { form: {} } } )
-    expect(console.warn).not.toBeCalled()
-    process.env.NODE_ENV = 'test'
-
-  })
-
-  it('validations not required anymore', () => {
-    const Component = () => {
-      useForm({ name: 'form' , validations: [], validators: {} })
-      return null
-    }
-    render(<Component/>, { initialState: { form: {} } } )
-    expect(console.warn).toBeCalledWith([
-      'validations is being deprecated. You do not have to define it anymore.',
-      'When submitting, all the validator functions defined in validators will be run.',
-    ].join(' '))
-
-    console.warn.mockReset()
-    process.env.NODE_ENV = 'production'
-    render(<Component/>, { initialState: { form: {} } })
-    expect(console.warn).not.toBeCalled()
-    process.env.NODE_ENV = 'test'
-  })
-})
-
-
-it('input field has no defined validator throws error', () => {
-
-  const Component = () => {
-    useForm({ name: 'form', validators: {} })
-    return null
-  }
-
-  expect(() => render(
-    <Component/>,
-    { initialState: { form: { input: '' } } }
-  ))
-    .toThrow('You forgot to define a validator in "form" for the field: input')
-})
 
 
 it('invalid validator throws error', () => {
@@ -76,9 +23,9 @@ it('invalid validator throws error', () => {
     { initialState: { form: { input: '' } } }
   ))
     .toThrow([
-      'The validator for input in validators did not return a boolean.',
-      'To validate a field, define a function that returns',
-      'true if valid, and false if invalid.',
+      'The validator for input in validators is invalid.',
+      'To validate a field, define a function that',
+      'returns true if valid, and false if invalid.',
     ].join(' '))
 
 })
@@ -160,7 +107,7 @@ it('handleChange validates', () => {
           name="input1"
           id="input1"
           value={form.fields.input1.value}
-          onChange={customHandleChange(['customValidation'])}
+          onChange={customHandleChange(['input1', 'customValidation'])}
         />
         <label htmlFor="input2">{form.fields.input2.error ? 'input 2 error' : 'input 2'}</label>
         <input
@@ -193,8 +140,8 @@ it('handleChange validates', () => {
 
   // Notifies about errors.
   expect(onNotify).toBeCalledTimes(2)
-  expect(onNotify).toBeCalledWith('validationError', 'input1')
-  expect(onNotify).toBeCalledWith('validationError', 'input2')
+  expect(onNotify).toBeCalledWith('validationErrors', ['input1', 'customValidation'])
+  expect(onNotify).toBeCalledWith('validationErrors', ['input2'])
 
 
   jest.resetAllMocks()
