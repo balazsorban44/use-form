@@ -20,7 +20,7 @@ export {
 }
 
 
-interface FormProviderProps {
+interface FormProviderProps<T extends {[name: string]: Object}>{
   children: React.ReactElement,
   /** Give the initial state of the forms.
    * 
@@ -28,9 +28,11 @@ interface FormProviderProps {
    * and replace it with another value if you receive 
    * this data asynchronously.
    */
-  initialState: {
-    [name: string]: Object
-  }
+  initialState: T
+  /**
+   * The validators for the forms. Mirrors the structure of `initialState`. 
+   */
+  validators?: T
 }
 
 interface Action {

@@ -29,8 +29,10 @@ interface UseFormParams {
    *
    * A validator function returns `true`
    * if the field(s) it is testing are valid.
+   * @note You can also pass the validators to the
+   * FormProvider.
    */
-  validators: Validators
+  validators?: Validators
   /** Function called to submit the form. */
   submit: SubmitFunction
   /**

@@ -7,8 +7,8 @@ const isObject = o => Object.prototype.toString.call(o) === '[object Object]'
 
 export default function useForm ({
   name,
-  validators,
   submit,
+  validators = undefined,
   onFinished = null,
   onNotify = null,
   context = null,
@@ -16,9 +16,11 @@ export default function useForm ({
 }) {
 
 
-  const { dispatch, forms } = useContext(context || FormContext)
+  const { dispatch, forms, validators: _validators } = useContext(context || FormContext)
 
   const form = forms[name]
+
+  validators = validators || (_validators[name] ? { ..._validators[name] } : undefined)
 
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)

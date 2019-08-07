@@ -8,7 +8,7 @@ function reducer(state, { type, payload }) {
     { ...state, ...payload }
 }
 
-function FormProvider({ children, initialState = {} }) {
+function FormProvider({ children, initialState = {}, validators = {} }) {
   const [forms, dispatch] = useReducer(reducer, initialState)
 
 
@@ -24,7 +24,7 @@ function FormProvider({ children, initialState = {} }) {
   }, [initialState])
 
   return (
-    <FormContext.Provider value={{ forms, dispatch }}>
+    <FormContext.Provider value={{ forms, dispatch, validators }}>
       {children}
     </FormContext.Provider>
   )
