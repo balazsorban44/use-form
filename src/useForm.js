@@ -7,7 +7,7 @@ const isObject = o => Object.prototype.toString.call(o) === '[object Object]'
 
 export default function useForm ({
   name,
-  submit,
+  submit = null,
   validators = undefined,
   onFinished = null,
   onNotify = null,
@@ -16,14 +16,22 @@ export default function useForm ({
 }) {
 
 
-  const { dispatch, forms, validators: _validators } = useContext(context || FormContext)
+  const {
+    dispatch,
+    forms,
+    validators: _validators,
+    onNotify: _onNotify,
+    submit: _submit
+  } = useContext(context || FormContext)
 
   const form = forms[name]
 
   validators = validators || (_validators[name] ? { ..._validators[name] } : undefined)
+  onNotify = onNotify || _onNotify
 
   const [errors, setErrors] = useState({})
   const [loading, setLoading] = useState(false)
+  submit = submit || _submit
 
 
   if (process.env.NODE_ENV !== 'production') {
@@ -142,6 +150,7 @@ export default function useForm ({
       }
       else {
         return submit({
+          name,
           fields: form,
           setLoading,
           finish: (...args) => {
@@ -153,7 +162,7 @@ export default function useForm ({
     }
   }, [
     // REVIEW: Find a better way to optimize here.
-    form, loading, onNotify, validators, submit, onFinished,
+    name, form, loading, onNotify, validators, submit, onFinished,
   ])
 
   return ({
