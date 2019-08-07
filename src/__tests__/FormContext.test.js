@@ -12,7 +12,7 @@ jest.useFakeTimers()
 it('Initial state is correctly set', () => {
   const initialState = { form: { input: 'Default value' } }
   const Component = () => {
-    const form = useForm({ name: 'form', validators: { input: () => true } })
+    const form = useForm({ name: 'form', validators: { input: () => true } , submit: () => null })
     return <input name="input" defaultValue={form.fields.input.value}/>
   }
 
@@ -44,7 +44,7 @@ it('setting initialState asnyc', () => {
 
 
     return (
-      <FormProvider initialState={initialState}>
+      <FormProvider initialState={initialState} submit={() => null}>
         <ChildComponent/>
       </FormProvider>
     )
@@ -72,7 +72,7 @@ it('invalid initialState throws error', () => {
   const Component = () => {
 
     return (
-      <FormProvider >
+      <FormProvider submit={() => null}>
         <ChildComponent/>
       </FormProvider>
     )
@@ -80,8 +80,8 @@ it('invalid initialState throws error', () => {
 
   expect(() => render(<Component/>)).toThrow([
     'The initial state for "form" is invalid.',
-    'You can define an initialState in the FormProvider like this:',
-    '<FormProvider initialState={{formName: /*initial values here*/}}>...',
+    'You can define the initialState in the FormProvider like this:',
+    '<FormProvider initialState={{formName: /*initial values here*/}}>',
   ].join(' '))
 
 

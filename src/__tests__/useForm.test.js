@@ -33,7 +33,7 @@ it('invalid validator throws error', () => {
 it('invalid name throws error', () => {
 
   const Component = ({ name }) => {
-    useForm({ name, validators: {} })
+    useForm({ name, validators: {}, submit: () => null })
     return null
   }
 
@@ -53,7 +53,7 @@ it('not specified name attribute on an input throws error', () => {
   const initialState = { form: { input: 'default value' } }
 
   const Component = () => {
-    const form = useForm({ name: 'form', validators: { input: () => true } })
+    const form = useForm({ name: 'form', validators: { input: () => true }, submit: () => null })
     return (
       <input
         value={form.fields.input.value}
@@ -91,7 +91,8 @@ it('handleChange validates', () => {
         input2: ({ input1, input2 }) => parseInt(input1, 10) + parseInt(input2, 10) === 2,
         customValidation: ({ input1, input2 }) => input1 + input2 === 2
       },
-      onNotify
+      onNotify,
+      submit: () => null
     })
 
     const customHandleChange = (validations = []) => ({ target: { name, value } }) => {
@@ -120,7 +121,7 @@ it('handleChange validates', () => {
     )
   }
 
-  const { getByLabelText, queryByLabelText } = render(<Component/>, { initialState } )
+  const { getByLabelText, queryByLabelText, debug } = render(<Component/>, { initialState } )
 
   const input1 = getByLabelText('input 1')
 
@@ -149,7 +150,7 @@ it('handleChange validates', () => {
 
 it('if custom change parameters used, and name is not in the form, throw error ', () => {
   const Component = () => {
-    const form = useForm({ name: 'form', validators: { input: () => true } })
+    const form = useForm({ name: 'form', validators: { input: () => true }, submit: () => null })
 
     return (
       <div>
@@ -180,10 +181,7 @@ it('handleSubmit validates', () => {
 
 
   // ---------------- TODO: add expects
-  const onFinished = jest.fn()
-  const submitMock = jest.fn(({ finish }) => {
-    finish()
-  })
+  const submitMock = jest.fn()
   // -----------------
 
   const input1Spy = jest.fn()
@@ -205,8 +203,7 @@ it('handleSubmit validates', () => {
         }
       },
       submit: submitMock,
-      onNotify,
-      onFinished
+      onNotify
     })
     return (
       <form>
@@ -233,8 +230,8 @@ it('handleSubmit validates', () => {
   expect(submitMock).toBeCalledWith({
     name: 'form',
     fields: initialState.form,
-    finish: expect.any(Function),
-    setLoading: expect.any(Function)
+    setLoading: expect.any(Function),
+    notify: expect.any(Function)
   })
 
   jest.resetAllMocks()
@@ -247,7 +244,7 @@ it('handleSubmit validates', () => {
 
   fireEvent.click(submitButton2)
 
-  expect(onNotify).toBeCalledWith('submitError')
+  expect(onNotify).toBeCalledWith('submitError', ['input2'])
 })
 
 
@@ -256,7 +253,8 @@ it('checkboxes\' checked prop used as value when form event is passed to handleC
   const Component = () => {
     const form = useForm({
       name: 'form',
-      validators: { input: () => true }
+      validators: { input: () => true },
+      submit: () => null
     })
 
     return (

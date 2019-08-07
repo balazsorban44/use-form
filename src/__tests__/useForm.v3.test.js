@@ -50,7 +50,7 @@ describe('v3 inputProps', () => {
         checkbox,
         ...rest
       }
-    } = useForm({ name: 'form', validators })
+    } = useForm({ name: 'form', validators, submit: () => null })
 
     return (
       <form>
