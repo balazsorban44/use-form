@@ -48,16 +48,29 @@ const handleDevErrors = (name, form, validators) => {
 
 export default function useForm ({
   name,
-  validators,
-  submit,
+  submit = null,
+  validators = undefined,
   onFinished = null,
   onNotify = null
 }) {
 
-  // Setup
-  const { dispatch, forms } = useContext(FormContext)
+
+  const {
+    dispatch,
+    forms,
+    validators: _validators,
+    onNotify: _onNotify,
+    submit: _submit
+  } = useContext(context || FormContext)
+
   const form = forms[name]
+
+  validators = validators || (_validators[name] ? { ..._validators[name] } : undefined)
+  onNotify = onNotify || _onNotify
+
   const [errors, setErrors] = useState({})
+  const [loading, setLoading] = useState(false)
+  submit = submit || _submit
 
 
   // Notify developer early on, if some of the required params are wrong.
@@ -155,22 +168,26 @@ export default function useForm ({
         fields: form,
         setLoading
       }
-
-      if (onNotify) {
-        submitParams.notify = function notify(type, ...args) {
-          if (
-            process.env.NODE_ENV !== 'production' &&
-            !['submitSuccess', 'submitError'].includes(type)
-          ) throw new TypeError('notify inside handleSubmit must be either "submitSuccess" or "submitError"')
-          else onNotify(type, ...args)
-        }
+      else {
+        return submit({
+          name,
+          fields: form,
+          setLoading,
+          finish: (...args) => {
+            onNotify && onNotify('submitSuccess')
+            onFinished && onFinished(args)
+          }
+        })
       }
 
       if (onFinished) submitParams.finish = onfinished
 
       return submit(submitParams)
     }
-  }, [validateFields, onNotify, form, onFinished, submit])
+  }, [
+    // REVIEW: Find a better way to optimize here.
+    name, form, loading, onNotify, validators, submit, onFinished,
+  ])
 
 
   const inputs = useMemo(() => inputPropGenerators(form, handleChange), [form, handleChange])

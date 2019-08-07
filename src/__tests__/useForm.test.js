@@ -231,6 +231,7 @@ it('handleSubmit validates', () => {
   expect(input1Spy).toBeCalledWith(initialState.form)
   expect(input2Spy).toBeCalledWith(initialState.form)
   expect(submitMock).toBeCalledWith({
+    name: 'form',
     fields: initialState.form,
     finish: expect.any(Function),
     setLoading: expect.any(Function)

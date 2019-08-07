@@ -100,7 +100,7 @@ const App = () => {
       <input 
         id="departure"
         name="departure"
-        value={form.fields.arrival.value}
+        value={form.fields.departure.value}
         onChange={e => form.handleChange(e, ["minOneNight"])}
       />
 

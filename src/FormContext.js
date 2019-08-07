@@ -1,4 +1,4 @@
-import React, { createContext, useReducer, useEffect, useRef } from 'react'
+import React, { createContext, useReducer, useEffect, useRef, useMemo } from 'react'
 
 const FormContext = createContext()
 
@@ -8,7 +8,13 @@ function reducer(state, { type, payload }) {
     { ...state, ...payload }
 }
 
-function FormProvider({ children, initialState = {} }) {
+function FormProvider({
+  children,
+  initialState = {},
+  validators = {},
+  onNotify = null,
+  submit = null
+}) {
   const [forms, dispatch] = useReducer(reducer, initialState)
 
 
@@ -23,8 +29,16 @@ function FormProvider({ children, initialState = {} }) {
     }
   }, [initialState])
 
+  const value = useMemo(() => ({
+    forms,
+    dispatch,
+    validators,
+    onNotify,
+    submit
+  }), [forms, onNotify, submit, validators])
+
   return (
-    <FormContext.Provider value={{ forms, dispatch }}>
+    <FormContext.Provider value={value}>
       {children}
     </FormContext.Provider>
   )
