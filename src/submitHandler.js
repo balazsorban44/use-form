@@ -1,14 +1,14 @@
-import validate from '../validate'
+import validate from './validate'
 
 /**
  * Called when a form is submitted.
  * It does a validation on all the fields
  * before it is being sent.
  */
-export default function submitHandler({ e, name, form, submit, setLoading, onNotify, onFinished }) {
+export default function submitHandler({ e, name, form, submit, setLoading, setErrors, onNotify, validators }) {
   e?.preventDefault?.()
 
-  const errors = validate({ fields: form })
+  const errors = validate({ fields: form, validators })
   setErrors(e => ({ ...e, ...errors }))
 
   const _errors = Object.entries(errors).filter(([_, v]) => v).map(([k]) => k)
@@ -28,13 +28,6 @@ export default function submitHandler({ e, name, form, submit, setLoading, onNot
           throw new TypeError('notify parameters inside handleSubmit must be either "submitSuccess" or "submitError"')
         else
           onNotify(...args)
-      else if(process.env.NODE_ENV !== 'production')
-        throw new Error('Please define an onNotify function as one of the parameters of useForm.')
-    }
-
-    submitParams.finish = (...args) => {
-      if (onFinished)
-        onFinished(...args)
       else if(process.env.NODE_ENV !== 'production')
         throw new Error('Please define an onNotify function as one of the parameters of useForm.')
     }

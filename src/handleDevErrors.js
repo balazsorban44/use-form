@@ -1,7 +1,7 @@
 import isObject from './utils/isObject'
 import { version } from '../package.json'
 
-export default function handleDevErrors ({ name, form, validators, submitCallback }) {
+export default function handleDevErrors ({ name, form, validators, submit }) {
 
   if (version.includes('alpha')) {
     console.warn([
@@ -12,8 +12,16 @@ export default function handleDevErrors ({ name, form, validators, submitCallbac
     ].join('\n'))
   }
 
+
   if (typeof name !== 'string')
     throw new TypeError(`name must be a string, but it was ${typeof name}.`)
+
+  if (!form)
+    throw new Error([
+      `The initial state for "${name}" is invalid.`,
+      'You can define the initialState in the FormProvider like this:',
+      '<FormProvider initialState={{formName: /*initial values here*/}}>',
+    ].join(' '))
 
   if (!isObject(validators)) {
     throw new TypeError(`validators must be an object, but it was ${typeof validators}.`)

@@ -7,7 +7,7 @@ import convert from './utils/convert'
 
 import handleDevErrors from './handleDevErrors'
 import changeHandler from './changeHandler'
-import submitHandler from './utils/submitHandler'
+import submitHandler from './submitHandler'
 import concatFieldsAndErrors from './utils/concatFieldsAndErrors'
 
 
@@ -15,26 +15,24 @@ export default function useForm ({
   name,
   submit = null,
   validators = undefined,
-  onFinished = null,
   onNotify = null
 }) {
 
 
   const {
     dispatch,
-    forms,
+    form,
     validators: _validators,
     onNotify: _onNotify,
     submit: _submit
-  } = useContext(context || FormContext)
+  } = useFormContext(name)
 
-  const form = forms[name]
-
-  validators = validators || (_validators[name] ? { ..._validators[name] } : undefined)
+  validators = validators || _validators
   onNotify = onNotify || _onNotify
+  submit = submit || _submit
 
   const [errors, setErrors] = useState({})
-  submit = submit || _submit
+
 
   if (process.env.NODE_ENV !== 'production')
     handleDevErrors({ name, form, validators, submit })
@@ -43,14 +41,14 @@ export default function useForm ({
 
 
   const handleChange = useCallback((...args) => {
-    changeHandler(dispatch, form, name, onNotify, validators, ...args)
+    changeHandler({ dispatch, setErrors, form, name, onNotify, validators, args })
   }, [dispatch, form, name, onNotify, validators])
 
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = useCallback(e => {
-    submitHandler({ e, name, form, submit, setLoading, onNotify, onFinished })
-  }, [name, form, submit, onNotify, onFinished])
+    submitHandler({ e, name, form, submit, setLoading, onNotify, setErrors, validators })
+  }, [name, form, submit, onNotify, validators])
 
 
   const validateFields = useCallback(

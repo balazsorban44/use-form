@@ -1,10 +1,15 @@
+import validate from './validate'
+import convert from './utils/convert'
+
 /**
  * Can take multiple values at once as well. In that case,
  * the first parameter must be an object that will be
  * merged with the form.
  */
-export default function changeHandler(dispatch, form, name, onNotify, validators, ...args) {
+export default function changeHandler({ dispatch, setErrors, form, name, onNotify, validators, args }) {
+
   let fields = {}
+
   let validations
 
   try {
@@ -29,12 +34,14 @@ export default function changeHandler(dispatch, form, name, onNotify, validators
       validations = args[1]
     }
 
+
     const errors = validate({
       form,
       validations,
       fields,
       validators
     })
+
 
     setErrors(e => ({ ...e, ...errors }))
 

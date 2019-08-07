@@ -11,12 +11,11 @@ function reducer(state, { type, payload }) {
 function FormProvider({
   children,
   initialState = {},
-  validators = {},
+  validators = undefined,
   onNotify = null,
   submit = null
 }) {
   const [forms, dispatch] = useReducer(reducer, initialState)
-
 
   /**
    * We override initialState if the prop has changed.
@@ -46,22 +45,19 @@ function FormProvider({
 
 
 function useFormContext(name) {
+
   const context = useContext(FormContext)
 
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.NODE_ENV !== 'production')
     if (!context) throw new Error('useForm must be used inside a FormProvider')
-    if (!(name in context.forms))
-      throw new Error([
-        `The initial state for "${name}" is invalid.`,
-        'You can define the initialState in the FormProvider like this:',
-        '<FormProvider initialState={{formName: /*initial values here*/}}>',
-      ].join(' '))
-  }
+
+  const { forms, validators } = context
 
   return useMemo(() => ({
-    dispatch: context.dispatch,
-    form: context.forms[name]
-  }), [context.dispatch, context.forms, name])
+    form: forms?.[name],
+    validators: validators?.[name],
+    ...context
+  }), [context, forms, name, validators])
 }
 
 
