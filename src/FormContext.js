@@ -1,4 +1,4 @@
-import React, { createContext, useReducer, useEffect, useRef, useMemo } from 'react'
+import React, { createContext, useReducer, useEffect, useRef, useContext, useMemo } from 'react'
 
 const FormContext = createContext()
 
@@ -44,7 +44,29 @@ function FormProvider({
   )
 }
 
-export {
-  FormContext as default,
-  FormProvider
+
+function useFormContext(name) {
+  const context = useContext(FormContext)
+
+  if (process.env.NODE_ENV !== 'production') {
+    if (!context) throw new Error('useForm must be used inside a FormProvider')
+    if (!(name in context.forms))
+      throw new Error([
+        `The initial state for "${name}" is invalid.`,
+        'You can define the initialState in the FormProvider like this:',
+        '<FormProvider initialState={{formName: /*initial values here*/}}>',
+      ].join(' '))
+  }
+
+  return useMemo(() => ({
+    dispatch: context.dispatch,
+    form: context.forms[name]
+  }), [context.dispatch, context.forms, name])
 }
+
+
+export {
+  FormProvider,
+  useFormContext
+}
+
