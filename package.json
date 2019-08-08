@@ -77,7 +77,11 @@
       "@testing-library/jest-dom/extend-expect"
     ],
     "collectCoverageFrom": [
-      "src/**/{!(test-utils|index),}.js"
+      "src/**/{!(test-utils|index),}.js",
+      "!src/**/*mock.js"
+    ],
+    "testPathIgnorePatterns": [
+      "mock"
     ]
   }
 }
