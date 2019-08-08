@@ -26,13 +26,12 @@ const initialState = {
 
 const providerProps = {
   initialState,
-  validators: validatorsMock,
   submit: jest.fn()
 }
 
 describe('v3 input props', () => {
   const App = () => {
-    const { fields, inputs } = useForm({ name: 'form' })
+    const { fields, inputs } = useForm({ name: 'form', validators: validatorsMock })
 
     return (
       <form>

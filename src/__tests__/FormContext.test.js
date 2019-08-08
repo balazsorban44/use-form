@@ -8,7 +8,10 @@ import { errors } from '../handleDevErrors'
 
 it('can\'t use useForm outside FormProvider', () => {
 
-  const App = () => useForm({ name: 'form' })
+  const App = () => {
+    useForm({ name: 'form' })
+    return null
+  }
 
   expect(() => render(<App/>)).toThrowError(errors.outsideProvider)
 
@@ -30,7 +33,10 @@ it('require initialState prop', () => {
 
   const name = 'form'
 
-  const App = () => useForm({ name, submit: jest.fn(), validators: {} })
+  const App = () => {
+    useForm({ name, submit: jest.fn(), validators: {} })
+    return null
+  }
 
   const Component = ({ initialState }) => (
     <FormProvider initialState={initialState}>
@@ -94,7 +100,10 @@ it('set initialState async', () => {
 
 it('submit prop', () => {
 
-  const App = () => useForm({ name: 'form', validators: {} })
+  const App = () => {
+    useForm({ name: 'form', validators: {} })
+    return null
+  }
 
   const Component = ({ submit }) => (
     <FormProvider
@@ -118,11 +127,14 @@ it('submit prop', () => {
 
 it('validators prop', () => {
 
-  const App = () => useForm({ name: 'form', submit: jest.fn() })
+  const App = () => {
+    useForm({ name: 'form', submit: jest.fn() })
+    return null
+  }
 
   const Component = ({ validators }) => (
     <FormProvider
-      initialState={{ form: {} }}
+      initialState={{ form: { input: 'value' } }}
       validators={validators}
     >
       <App/>
