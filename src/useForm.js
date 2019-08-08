@@ -31,12 +31,12 @@ export default function useForm ({
   onNotify = onNotify || _onNotify
   submit = submit || _submit
 
-  const [errors, setErrors] = useState({})
-
 
   if (process.env.NODE_ENV !== 'production')
     handleDevErrors({ name, form, validators, submit })
 
+
+  const [errors, setErrors] = useState({})
   const fields = concatFieldsAndErrors(form, errors)
 
 

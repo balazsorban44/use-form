@@ -52,13 +52,17 @@ function useFormContext(name) {
   if (process.env.NODE_ENV !== 'production')
     if (!context) throw new Error(errors.outsideProvider)
 
-  const { forms, validators } = context
+  const {
+    forms,
+    validators,
+    ...rest
+  } = context
 
   return useMemo(() => ({
     form: forms?.[name],
     validators: validators?.[name],
-    ...context
-  }), [context, forms, name, validators])
+    ...rest
+  }), [forms, name, rest, validators])
 }
 
 
