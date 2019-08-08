@@ -3,12 +3,6 @@ export default function convert(type, value, checked, prevValue) {
   case 'range':
   case 'number':
     return parseInt(value, 10)
-  case 'date':
-  case 'month':
-  case 'time':
-  case 'week':
-  case 'datetime-local':
-    // REVIEW: Do somehting?
   case 'checkbox': {
     if (Array.isArray(prevValue)) {
       const newValue = prevValue.filter(v => v !== value)
@@ -16,6 +10,12 @@ export default function convert(type, value, checked, prevValue) {
       return newValue
     } else return checked
   }
+  // REVIEW: Do somehting?
+  case 'date':
+  case 'month':
+  case 'time':
+  case 'week':
+  case 'datetime-local':
   // Rest of the types' values are strings
   default:
     return value
