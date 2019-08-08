@@ -1,34 +1,63 @@
 import React, { useState, useEffect } from 'react'
-import { render, act } from '@testing-library/react'
-import { render as customRender } from '../test-utils'
-
 import { FormProvider } from '../FormContext'
+import { render, act } from '@testing-library/react'
 import useForm from '../useForm'
 
+import './utils/console.mock'
+import { errors } from '../handleDevErrors'
 
-jest.useFakeTimers()
+it('can\'t use useForm outside FormProvider', () => {
 
+  const App = () => useForm({ name: 'form' })
 
-it('Initial state is correctly set', () => {
-  const initialState = { form: { input: 'Default value' } }
-  const Component = () => {
-    const form = useForm({ name: 'form', validators: { input: () => true } , submit: () => null })
-    return <input name="input" defaultValue={form.fields.input.value}/>
-  }
+  expect(() => render(<App/>)).toThrowError(errors.outsideProvider)
 
-  const { getByDisplayValue } = customRender(<Component/>, { initialState } )
+  expect(() => render(
+    <FormProvider>
+      <App/>
+    </FormProvider>
+  )).not.toThrowError(errors.outsideProvider)
 
-  const input = getByDisplayValue(initialState.form.input)
-
-  expect(input).toBeInTheDocument()
+  // Don't throw in production
+  const env = process.env.NODE_ENV
+  process.env.NODE_ENV = 'production'
+  expect(() => render(<App/>)).not.toThrowError(errors.outsideProvider)
+  process.env.NODE_ENV = env
 
 })
 
-it('setting initialState asnyc', () => {
+it('require initialState prop', () => {
 
-  const ChildComponent = () => {
-    const { fields } = useForm({ name: 'form', validators: { input: () => true } })
+  const name = 'form'
 
+  const App = () => useForm({ name, submit: jest.fn(), validators: {} })
+
+  const Component = ({ initialState }) => (
+    <FormProvider initialState={initialState}>
+      <App/>
+    </FormProvider>
+  )
+
+
+  expect(() => render(<Component/>))
+    .toThrowError(errors.initialState(name))
+
+  const initialState = { [name]: {} }
+  expect(() => render(<Component initialState={initialState}/>))
+    .not
+    .toThrowError(errors.initialState(name))
+
+})
+
+it('set initialState async', () => {
+  jest.useFakeTimers()
+
+  const App = () => {
+    const { fields } = useForm({
+      name: 'form',
+      validators: { input: () => true },
+      submit: jest.fn()
+    })
 
     return fields.input.value
   }
@@ -44,8 +73,8 @@ it('setting initialState asnyc', () => {
 
 
     return (
-      <FormProvider initialState={initialState} submit={() => null}>
-        <ChildComponent/>
+      <FormProvider initialState={initialState}>
+        <App/>
       </FormProvider>
     )
   }
@@ -60,29 +89,52 @@ it('setting initialState asnyc', () => {
   // new initialState is fetched
   expect(getByText('VALUE')).toBeInTheDocument()
 
+  jest.useRealTimers()
 })
 
-it('invalid initialState throws error', () => {
+it('submit prop', () => {
 
-  const ChildComponent = () => {
-    const { fields } = useForm({ name: 'form' })
-    return fields.input.value
-  }
+  const App = () => useForm({ name: 'form', validators: {} })
 
-  const Component = () => {
-
-    return (
-      <FormProvider submit={() => null}>
-        <ChildComponent/>
-      </FormProvider>
-    )
-  }
-
-  expect(() => render(<Component/>)).toThrow([
-    'The initial state for "form" is invalid.',
-    'You can define the initialState in the FormProvider like this:',
-    '<FormProvider initialState={{formName: /*initial values here*/}}>',
-  ].join(' '))
+  const Component = ({ submit }) => (
+    <FormProvider
+      initialState={{ form: {} }}
+      submit={submit}
+    >
+      <App/>
+    </FormProvider>
+  )
 
 
+  expect(() => render(<Component/>))
+    .toThrowError(errors.submit())
+
+  const submit = jest.fn()
+  expect(() => render(<Component submit={submit}/>))
+    .not.toThrowError(errors.submit(submit))
+
+})
+
+
+it('validators prop', () => {
+
+  const App = () => useForm({ name: 'form', submit: jest.fn() })
+
+  const Component = ({ validators }) => (
+    <FormProvider
+      initialState={{ form: {} }}
+      validators={validators}
+    >
+      <App/>
+    </FormProvider>
+  )
+
+
+  expect(() => render(<Component/>))
+    .toThrowError(errors.validators())
+
+  const validators = {}
+  expect(() => render(<Component validators={validators}/>))
+    .not
+    .toThrowError(errors.validators(validators))
 })

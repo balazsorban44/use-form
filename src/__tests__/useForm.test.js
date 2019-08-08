@@ -1,6 +1,7 @@
 import React from 'react'
 import { render, fireEvent, cleanup } from '../test-utils'
 import useForm from '../useForm'
+import { errors } from '../handleDevErrors'
 
 
 it('invalid validator throws error', () => {
@@ -14,19 +15,13 @@ it('invalid validator throws error', () => {
     <Component/>,
     { initialState: { form: { input: '' } } }
   ))
-    .toThrow('validators must be an object, but it was undefined.')
+    .toThrow(errors.validators())
 
   expect(() => render(
-    <Component
-      validators={{ input: () => null }}
-    />,
+    <Component validators={{ input: () => null }} />,
     { initialState: { form: { input: '' } } }
   ))
-    .toThrow([
-      'The validator for input in validators is invalid.',
-      'To validate a field, define a function that',
-      'returns true if valid, and false if invalid.',
-    ].join(' '))
+    .toThrow(errors.validator('input'))
 
 })
 
@@ -43,9 +38,9 @@ it('invalid name throws error', () => {
   )
     .not.toThrow()
 
-  expect(() => render(<Component/>)).toThrow('name must be a string, but it was undefined.')
-  expect(() => render(<Component name={{}}/>)).toThrow('name must be a string, but it was object.')
-  expect(() => render(<Component name={() => null}/>)).toThrow('name must be a string, but it was function.')
+  expect(() => render(<Component/>)).toThrow(errors.name())
+  expect(() => render(<Component name={{}}/>)).toThrow(errors.name({}))
+  expect(() => render(<Component name={() => null}/>)).toThrow(errors.name(() => null))
 
 })
 
