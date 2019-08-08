@@ -1,4 +1,4 @@
-import React from "react"
+import * as React from "react"
 
 /** Context that holds the forms */
 declare const FormContext : React.ContextType<any>
@@ -89,8 +89,8 @@ interface FormProviderProps<T, N1, N2> {
    * The validators for the forms. Mirrors the structure of `initialState`. 
    */
   validators?: AllValidators<T>
-  onNotify?: N1
   submit?: SubmitFunction<T, N2, Form<T>, keyof T>
+  onNotify?: N1
 }
 
 /**

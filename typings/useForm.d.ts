@@ -6,13 +6,7 @@ export interface Fields {
 }
 
 /** Hook to set up a form. */
-declare function useForm({
-  name, validators, submit,
-  onFinished, onNotify, context,
-  validations, validatorObject
-}: UseFormParams) : UseForm
-
-interface UseFormParams {
+declare function useForm(useFormParams: {
   /**
    * Determine which form should we hook into in the Forms Context.
    * This makes it possible to handle multiple forms.
@@ -34,12 +28,7 @@ interface UseFormParams {
    */
   validators?: Validators
   /** Function called to submit the form. */
-  submit: SubmitFunction
-  /**
-   * An optional callback function,
-   * invoked when a submission has been successfully submitted.
-   */
-  onFinished?: Function
+  submit?: SubmitFunction
   /** Invoked if something happened that the user should be informed about. */
   onNotify?: OnNotifyCallback
   /**
@@ -51,7 +40,7 @@ interface UseFormParams {
    * @see https://github.com/balazsorban44/use-form#usage
    */
   context?: React.Context<any>
-}
+}) : UseForm
 
 
 interface UseForm {
