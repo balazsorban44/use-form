@@ -1,34 +1,44 @@
 
 const inputTypes = [
   'text', 'radio', 'email', 'password', 'search', 'color', 'tel', 'url',
-  'date', 'datetime-local', 'time', 'week', 'month',
+
+  'date', 'time', 'week', 'month',
+  'datetimeLocal', // NOTE: This is datetime-local
+
   'number', 'range',
+
   'checkbox',
 ]
 
 export default function inputPropGenerators(fields, onChange) {
+
   return inputTypes.reduce((acc, type) => {
     const inputProps = (name, value) => {
       const result = {
         name,
         id: name,
-        value: fields[name],
+        value: value || fields[name],
         onChange,
         type
       }
-      if (type === 'radio') {
+
+      switch (type) {
+      case 'datetimeLocal':
+        result.type = 'datetime-local'
+        break
+      case 'radio':
         result.id = value
-        result.value = value
-        if (type === 'date') {
-          result.value = new Date(value).format('yyyy-MM-dd')
-        }
-      } else if (type === 'checkbox') {
+        break
+      case 'checkbox':
         result.checked =
-        Array.isArray(fields[name]) ?
-          fields[name].includes(value) :
-          fields[name]
-        result.value = value
+          Array.isArray(fields[name]) ?
+            fields[name].includes(value) :
+            fields[name]
+        break
+      default:
+        break
       }
+
       return result
     }
 

@@ -1,4 +1,5 @@
 import React, { createContext, useReducer, useEffect, useRef, useContext, useMemo } from 'react'
+import handleDevErrors, { errors } from './handleDevErrors'
 
 const FormContext = createContext()
 
@@ -12,8 +13,8 @@ function FormProvider({
   children,
   initialState = {},
   validators = undefined,
-  onNotify = null,
-  submit = null
+  submit = undefined,
+  onNotify = undefined
 }) {
   const [forms, dispatch] = useReducer(reducer, initialState)
 
@@ -49,7 +50,7 @@ function useFormContext(name) {
   const context = useContext(FormContext)
 
   if (process.env.NODE_ENV !== 'production')
-    if (!context) throw new Error('useForm must be used inside a FormProvider')
+    if (!context) throw new Error(errors.outsideProvider)
 
   const { forms, validators } = context
 

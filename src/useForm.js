@@ -13,9 +13,9 @@ import concatFieldsAndErrors from './utils/concatFieldsAndErrors'
 
 export default function useForm ({
   name,
-  submit = null,
   validators = undefined,
-  onNotify = null
+  submit = undefined,
+  onNotify = undefined
 }) {
 
 
