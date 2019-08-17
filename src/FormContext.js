@@ -1,19 +1,14 @@
 import React, { createContext, useReducer, useEffect, useRef, useContext, useMemo } from 'react'
 import handleDevErrors, { errors } from './handleDevErrors'
+import reducer from './reducer'
 
 const FormContext = createContext()
-
-function reducer(state, { type, payload }) {
-  return (type in state) ?
-    { ...state, [type]: { ...state[type], ...payload } } :
-    { ...state, ...payload }
-}
 
 function FormProvider({
   children,
   initialState = {},
   validators = undefined,
-  submit = undefined,
+  onSubmit = undefined,
   onNotify = undefined
 }) {
   const [forms, dispatch] = useReducer(reducer, initialState)
@@ -45,24 +40,22 @@ function FormProvider({
 }
 
 
-function useFormContext(name) {
-
+function useFormContext(name, initialState) {
+  const [form, dispatch] = useReducer(reducer, initialState)
   const context = useContext(FormContext)
+
+  if (!name) return { form, dispatch }
 
   if (process.env.NODE_ENV !== 'production')
     if (!context) throw new Error(errors.outsideProvider)
 
-  const {
-    forms,
-    validators,
-    ...rest
-  } = context
+  const { forms, validators, ...rest } = context
 
-  return useMemo(() => ({
+  return {
     form: forms?.[name],
     validators: validators?.[name],
     ...rest
-  }), [forms, name, rest, validators])
+  }
 }
 
 

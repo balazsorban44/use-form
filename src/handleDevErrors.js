@@ -11,7 +11,10 @@ export const warnings = {
 }
 
 export const errors = {
-  name: name => `name must be a string, but it was ${typeof name}.`,
+  name: name => [
+    'if you use a FormProvider and no initialState is given in useForm',
+    `name must be a string, but it was ${typeof name}.`,
+  ].join('\n'),
 
   initialState: name => [
     `The initial state for "${name}" is invalid.`,
@@ -36,12 +39,12 @@ export const errors = {
 }
 
 
-export default function handleDevErrors ({ name, form, validators, submit }) {
+export default function handleDevErrors ({ name, initialState, form, validators, onSubmit }) {
 
   if (version.includes('alpha'))
     console.warn(warnings.alpha)
 
-  if (typeof name !== 'string')
+  if (typeof name !== 'string' && !initialState)
     throw new TypeError(errors.name(name))
 
   if (!form)

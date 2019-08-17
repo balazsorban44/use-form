@@ -10,43 +10,33 @@ import changeHandler from './changeHandler'
 import submitHandler from './submitHandler'
 import concatFieldsAndErrors from './utils/concatFieldsAndErrors'
 
+export default function useForm ({ name, initialState, validators, onSubmit, onNotify }) {
 
-export default function useForm ({
-  name,
-  validators = undefined,
-  submit = undefined,
-  onNotify = undefined
-}) {
+  const { form, dispatch, ...c } = useFormContext(name, initialState)
 
+  validators = validators || c.validators
+  onNotify = onNotify || c.onNotify
   onSubmit = onSubmit || c.onSubmit
 
-
   if (process.env.NODE_ENV !== 'production')
-    handleDevErrors({ name, form, validators, submit })
+    handleDevErrors({ name, initialState, form, validators, onSubmit })
 
 
+  const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState({})
   const fields = concatFieldsAndErrors(form, errors)
 
 
-  const handleChange = useCallback((...args) => {
+  const handleChange = useCallback((...args) =>
     changeHandler({ dispatch, setErrors, form, name, onNotify, validators, args })
-  }, [dispatch, form, name, onNotify, validators])
-
-  const [loading, setLoading] = useState(false)
-
-  const handleSubmit = useCallback(e => {
-    submitHandler({ e, name, form, submit, setLoading, onNotify, setErrors, validators })
-  }, [name, form, submit, onNotify, validators])
+  , [dispatch, form, name, onNotify, validators])
 
 
-  const validateFields = useCallback(
-    (fields, validations) =>
-      validate({ fields, validators, validations }), [validators]
-  )
+  const handleSubmit = useCallback(e =>
+    submitHandler({ e, name, form, submit: onSubmit, setLoading, onNotify, setErrors, validators })
+  , [name, form, onSubmit, onNotify, validators])
 
-  const inputs = useMemo(() => inputPropGenerators(form, handleChange), [form, handleChange])
-
+  const inputs = inputPropGenerators({ fields, handleChange, handleSubmit })
 
   return ({
     fields,
@@ -56,7 +46,6 @@ export default function useForm ({
     loading,
     handleSubmit,
 
-    validateFields,
     inputs
   })
 }
