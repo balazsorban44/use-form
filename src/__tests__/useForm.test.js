@@ -28,7 +28,7 @@ it('invalid validator throws error', () => {
 it('invalid name throws error', () => {
 
   const Component = ({ name }) => {
-    useForm({ name, validators: {}, submit: () => null })
+    useForm({ name, validators: {}, onSubmit: () => null })
     return null
   }
 
@@ -48,7 +48,7 @@ it('not specified name attribute on an input throws error', () => {
   const initialState = { form: { input: 'default value' } }
 
   const Component = () => {
-    const form = useForm({ name: 'form', validators: { input: () => true }, submit: () => null })
+    const form = useForm({ name: 'form', validators: { input: () => true }, onSubmit: () => null })
     return (
       <input
         value={form.fields.input.value}
@@ -87,7 +87,7 @@ it('handleChange validates', () => {
         customValidation: ({ input1, input2 }) => input1 + input2 === 2
       },
       onNotify,
-      submit: () => null
+      onSubmit: () => null
     })
 
     const customHandleChange = (validations = []) => ({ target: { name, value } }) => {
@@ -145,7 +145,7 @@ it('handleChange validates', () => {
 
 it('if custom change parameters used, and name is not in the form, throw error ', () => {
   const Component = () => {
-    const form = useForm({ name: 'form', validators: { input: () => true }, submit: () => null })
+    const form = useForm({ name: 'form', validators: { input: () => true }, onSubmit: () => null })
 
     return (
       <div>
@@ -197,7 +197,7 @@ it('handleSubmit validates', () => {
           return input2Result
         }
       },
-      submit: submitMock,
+      onSubmit: submitMock,
       onNotify
     })
     return (
@@ -249,7 +249,7 @@ it('checkboxes\' checked prop used as value when form event is passed to handleC
     const form = useForm({
       name: 'form',
       validators: { input: () => true },
-      submit: () => null
+      onSubmit: () => null
     })
 
     return (

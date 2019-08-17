@@ -18,8 +18,8 @@ export const errors = {
     'docs: TODO: add link',
   ].join('\n'),
 
-  submit: submit => [
-    `submit must be a function, but it was ${typeof submit}.`,
+  onSubmit: onSubmit => [
+    `onSubmit must be a function, but it was ${typeof onSubmit}.`,
     'docs: TODO: add link',
   ].join('\n'),
 
@@ -59,6 +59,6 @@ export default function handleDevErrors ({ name, form, validators, submit }) {
       throw new TypeError(errors.validator(invalidValidators))
   }
 
-  if (typeof submit !== 'function')
-    throw new TypeError(errors.submit(submit))
+  if (typeof onSubmit !== 'function')
+    throw new TypeError(errors.onSubmit(onSubmit))
 }

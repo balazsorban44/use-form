@@ -34,7 +34,7 @@ it('require initialState prop', () => {
   const name = 'form'
 
   const App = () => {
-    useForm({ name, submit: jest.fn(), validators: {} })
+    useForm({ name, onSubmit: jest.fn(), validators: {} })
     return null
   }
 
@@ -62,7 +62,7 @@ it('set initialState async', () => {
     const { fields } = useForm({
       name: 'form',
       validators: { input: () => true },
-      submit: jest.fn()
+      onSubmit: jest.fn()
     })
 
     return fields.input.value
@@ -98,17 +98,17 @@ it('set initialState async', () => {
   jest.useRealTimers()
 })
 
-it('submit prop', () => {
+it('onSubmit prop', () => {
 
   const App = () => {
     useForm({ name: 'form', validators: {} })
     return null
   }
 
-  const Component = ({ submit }) => (
+  const Component = ({ onSubmit }) => (
     <FormProvider
       initialState={{ form: {} }}
-      submit={submit}
+      onSubmit={onSubmit}
     >
       <App/>
     </FormProvider>
@@ -116,11 +116,11 @@ it('submit prop', () => {
 
 
   expect(() => render(<Component/>))
-    .toThrowError(errors.submit())
+    .toThrowError(errors.onSubmit())
 
-  const submit = jest.fn()
-  expect(() => render(<Component submit={submit}/>))
-    .not.toThrowError(errors.submit(submit))
+  const onSubmit = jest.fn()
+  expect(() => render(<Component onSubmit={onSubmit}/>))
+    .not.toThrowError(errors.onSubmit(onSubmit))
 
 })
 
@@ -128,7 +128,7 @@ it('submit prop', () => {
 it('validators prop', () => {
 
   const App = () => {
-    useForm({ name: 'form', submit: jest.fn() })
+    useForm({ name: 'form', onSubmit: jest.fn() })
     return null
   }
 

@@ -18,18 +18,7 @@ export default function useForm ({
   onNotify = undefined
 }) {
 
-
-  const {
-    dispatch,
-    form,
-    validators: _validators,
-    onNotify: _onNotify,
-    submit: _submit
-  } = useFormContext(name)
-
-  validators = validators || _validators
-  onNotify = onNotify || _onNotify
-  submit = submit || _submit
+  onSubmit = onSubmit || c.onSubmit
 
 
   if (process.env.NODE_ENV !== 'production')

@@ -34,8 +34,8 @@ function FormProvider({
     dispatch,
     validators,
     onNotify,
-    submit
-  }), [forms, onNotify, submit, validators])
+    onSubmit
+  }), [forms, onNotify, onSubmit, validators])
 
   return (
     <FormContext.Provider value={value}>

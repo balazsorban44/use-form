@@ -89,7 +89,7 @@ interface FormProviderProps<T, N1, N2> {
    * The validators for the forms. Mirrors the structure of `initialState`. 
    */
   validators?: AllValidators<T>
-  submit?: SubmitFunction<T, N2, Form<T>, keyof T>
+  onSubmit?: SubmitFunction<T, N2, Form<T>, keyof T>
   onNotify?: N1
 }
 

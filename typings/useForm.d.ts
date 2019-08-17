@@ -28,7 +28,7 @@ declare function useForm(useFormParams: {
    */
   validators?: Validators
   /** Function called to submit the form. */
-  submit?: SubmitFunction
+  onSubmit?: SubmitFunction
   /** Invoked if something happened that the user should be informed about. */
   onNotify?: OnNotifyCallback
   /**
