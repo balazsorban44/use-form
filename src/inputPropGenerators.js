@@ -43,7 +43,6 @@ const inputPropsGenerator = ({ type, fields, handleChange, handleSubmit }) =>
           field.value
       break
     case 'select':
-      delete props.value
       delete props.type
       break
     case 'submit':
