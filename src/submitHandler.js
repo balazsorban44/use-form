@@ -8,7 +8,7 @@ import validate from './validate'
 export default function submitHandler({ e, name, form, submit, setLoading, setErrors, onNotify, validators }) {
   e?.preventDefault?.()
 
-  const errors = validate({ fields: form, validators })
+  const errors = validate({ fields: form, validators, submitting: true })
   setErrors(e => ({ ...e, ...errors }))
 
   const _errors = Object.entries(errors).filter(([_, v]) => v).map(([k]) => k)

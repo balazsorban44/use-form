@@ -11,7 +11,8 @@ interface ValidateParams {
   fields: Fields
   validators: Validators
   validations?: string[]
-  form?: Fields
+  form?: Fields,
+  submitting?: Boolean
 }
 
 
