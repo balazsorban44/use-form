@@ -20,18 +20,19 @@ const initialState = {
     month: '2019-09',
     number: 0,
     range: 44,
-    checkbox: false
+    checkbox: false,
+    select: '1'
   }
 }
 
 const providerProps = {
   initialState,
-  submit: jest.fn()
+  onSubmit: jest.fn()
 }
 
 describe('v3 input props', () => {
   const App = () => {
-    const { fields, inputs } = useForm({ name: 'form', validators: validatorsMock })
+    const { fields, inputs, loading } = useForm({ name: 'form', validators: validatorsMock })
 
     return (
       <form>
@@ -57,16 +58,27 @@ describe('v3 input props', () => {
           <input {...inputs.month('month')}/>
 
         </fieldset>
+        <fieldset>
+          <legend>Selects:</legend>
 
-        <radiogroup>
-          <input {...inputs.radio('radio', 'option-1')}/>
-          <input {...inputs.radio('radio', 'option-2')}/>
-          <p>{fields.radio.value}</p>
-        </radiogroup>
+          <radiogroup>
+            <input {...inputs.radio('radio', { value: 'option-1' })}/>
+            <input {...inputs.radio('radio', { value: 'option-2' })}/>
+            <p>{fields.radio.value}</p>
+          </radiogroup>
+
+          <input {...inputs.checkbox('checkbox', 'checkbox-1')}/>
+
+          <label htmlFor="select">select</label>
+          <select {...inputs.select('select')}>
+            <option value="select-1">select-1</option>
+            <option value="select-2">select-2</option>
+          </select>
+        </fieldset>
         <input {...inputs.number('number')}/>
         <input {...inputs.range('range')}/>
         <label htmlFor="checkbox">checkbox</label>
-        <input {...inputs.checkbox('checkbox', 'checkbox-1')}/>
+        <button {...inputs.submit('Submit')}/>
       </form>
     )
   }
@@ -91,16 +103,6 @@ describe('v3 input props', () => {
       { target: { name: 'color', value: '#ff7700' } }
     )
     expect(getByLabelText('color').attributes.getNamedItem('value').value).toBe('#ff7700')
-  })
-
-  it('radio input', () => {
-    const { getByDisplayValue, queryByText } = render(<App/>, providerProps)
-    expect(queryByText('option-2')).not.toBeInTheDocument()
-    fireEvent.click(
-      getByDisplayValue('option-2'),
-      { target: { name: 'radio', value: 'option-2' } }
-    )
-    expect(queryByText('option-2')).toBeInTheDocument()
   })
 
 
@@ -184,13 +186,53 @@ describe('v3 input props', () => {
     expect(getByDisplayValue('50')).toBeInTheDocument()
   })
 
+  it('Selects: select', () => {
+    const { getByDisplayValue, queryByDisplayValue, getByLabelText } = render(<App/>, providerProps)
 
-  it.skip('checkbox input', () => {
+    expect(queryByDisplayValue('select-2')).not.toBeInTheDocument()
+
+    fireEvent.click(
+      getByLabelText('select'),
+      { target: { name: 'select', value: 'select-2' } }
+    )
+
+    expect(getByDisplayValue('select-2')).toBeInTheDocument()
+  })
+
+  it('Selects: radio input', () => {
+    const { getByDisplayValue, queryByText } = render(<App/>, providerProps)
+    expect(queryByText('option-2')).not.toBeInTheDocument()
+    fireEvent.click(
+      getByDisplayValue('option-2'),
+      { target: { name: 'radio', value: 'option-2' } }
+    )
+    expect(queryByText('option-2')).toBeInTheDocument()
+  })
+
+
+  it.skip('Selects: checkbox input', () => {
     const { debug, getByLabelText } = render(<App/>, providerProps)
     fireEvent.click(
       getByLabelText('checkbox'),
       { target: { name: 'checkbox', checked: false } }
     )
     debug(getByLabelText('checkbox'))
+  })
+
+
+  it('Submit button', () => {
+    const { debug, getByText } = render(<App/>, providerProps)
+    fireEvent.click(getByText('Submit'))
+    expect(providerProps.onSubmit).toBeCalledWith(
+      expect.objectContaining({
+        name: 'form',
+        fields: initialState.form,
+        notify: expect.any(Function),
+        setLoading: expect.any(Function)
+      })
+    )
+
+    expect(providerProps.onSubmit).toBeCalledTimes(1)
+
   })
 })
