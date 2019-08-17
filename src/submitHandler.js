@@ -19,17 +19,16 @@ export default function submitHandler({ e, name, form, submit, setLoading, setEr
     const submitParams = {
       name,
       fields: form,
-      setLoading
-    }
-
-    submitParams.notify = (...args) => {
-      if (onNotify)
-        if (process.env.NODE_ENV !== 'production' && !['submitSuccess', 'submitError'].includes(type))
-          throw new TypeError('notify parameters inside handleSubmit must be either "submitSuccess" or "submitError"')
-        else
-          onNotify(...args)
-      else if(process.env.NODE_ENV !== 'production')
-        throw new Error('Please define an onNotify function as one of the parameters of useForm.')
+      setLoading,
+      notify: (...args) => {
+        if (onNotify)
+          if (process.env.NODE_ENV !== 'production' && !['submitSuccess', 'submitError'].includes(type))
+            throw new TypeError('notify parameters inside handleSubmit must be either "submitSuccess" or "submitError"')
+          else
+            onNotify(...args)
+        else if(process.env.NODE_ENV !== 'production')
+          throw new Error('Please define an onNotify function as one of the parameters of useForm.')
+      }
     }
 
     return submit(submitParams)

@@ -1,7 +1,5 @@
 import * as React from "react"
 
-/** Context that holds the forms */
-declare const FormContext : React.ContextType<any>
 
 /**A field value associated with an input field. */
 type FieldValue = any
@@ -92,6 +90,10 @@ interface FormProviderProps<T, N1, N2> {
   onSubmit?: SubmitFunction<T, N2, Form<T>, keyof T>
   onNotify?: N1
 }
+
+/** Context that holds the forms */
+declare const FormContext : React.ContextType<Partial<FormProviderProps>>
+
 
 /**
  * Should be declared as high as possible (preferebly in App) in 

@@ -5,8 +5,8 @@ export const warnings = {
   alpha: [
     '⚠  CAUTION!  ⚠ ',
     `You are using another-use-form-hook@${version}.`,
-    'This is highly experimental. It WILL crash and CONTAINS bugs 🐛',
-    'Only for testing purposes.',
+    'This is highly experimental. It may contain bugs 🐛',
+    'Do NOT use in production',
   ].join('\n')
 }
 
