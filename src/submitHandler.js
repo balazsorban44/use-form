@@ -13,7 +13,7 @@ export default function submitHandler({ e, name, form, submit, setLoading, setEr
 
   const _errors = Object.entries(errors).filter(([_, v]) => v).map(([k]) => k)
   if (_errors.length)
-    onNotify?.('submitError', _errors)
+    onNotify?.('validationErrors', _errors)
 
   else {
     const submitParams = {
