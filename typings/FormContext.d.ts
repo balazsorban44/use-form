@@ -38,7 +38,7 @@ type SubmitNotificationType =
 
 
 type NotificationType =
-  | "validationError"
+  | "validationErrors"
   | SubmitNotificationType
 
 type NotificationHandler<T> = (type: T) => void

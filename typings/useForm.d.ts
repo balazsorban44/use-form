@@ -137,7 +137,7 @@ type SubmitNotificationType = 'submitError' |
 'submitSuccess'
 
 type NotificationType = 
-  'validationError' |
+  'validationErrors' |
   SubmitNotificationType
 
 
@@ -145,7 +145,7 @@ type NotificationType =
 export type OnNotifyCallback<T=NotificationType, F=string> = (
   /** Type of notification */
   type: T,
-  /** If `type` is validationError, than key defines which validation failed. */
+  /** If `type` is validationErrors, than key defines which validation failed. */
   fieldKey?: F
 ) => void
 
