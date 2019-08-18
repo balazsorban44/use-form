@@ -22,7 +22,7 @@ export default function submitHandler({ e, name, form, submit, setLoading, setEr
       setLoading,
       notify: (...args) => {
         if (onNotify)
-          if (process.env.NODE_ENV !== 'production' && !['submitSuccess', 'submitError'].includes(type))
+          if (process.env.NODE_ENV !== 'production' && !['submitSuccess', 'submitError'].includes(args[0]))
             throw new TypeError('notify parameters inside handleSubmit must be either "submitSuccess" or "submitError"')
           else
             onNotify(...args)
