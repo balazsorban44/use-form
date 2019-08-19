@@ -20,7 +20,7 @@ export const errors = {
     `The initial state for "${name}" is invalid.`,
     'docs: TODO: add link',
   ].join('\n'),
-
+  missingFields: fields => `The following field(s) are missing from the form: ${fields}`,
   onSubmit: onSubmit => [
     `onSubmit must be a function, but it was ${typeof onSubmit}.`,
     'docs: TODO: add link',
