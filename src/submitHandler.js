@@ -17,7 +17,6 @@ export default function submitHandler({ e, name, form, submit, setLoading, setEr
 
   else {
     const submitParams = {
-      name,
       fields: form,
       setLoading,
       notify: (...args) => {
@@ -30,6 +29,8 @@ export default function submitHandler({ e, name, form, submit, setLoading, setEr
           throw new Error('Please define an onNotify function as one of the parameters of useForm.')
       }
     }
+
+    if (name) submitParams.name = name
 
     return submit(submitParams)
   }
