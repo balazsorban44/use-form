@@ -1,8 +1,9 @@
 import React from 'react'
-import { render, fireEvent, cleanup } from '../test-utils'
+import { render } from '@testing-library/react'
+import { render as customRender, fireEvent, cleanup } from '../test-utils'
 import useForm from '../useForm'
 import { errors } from '../handleDevErrors'
-
+import validatorsMock from './utils/validators.mock'
 
 it('invalid validator throws error', () => {
 
@@ -11,14 +12,14 @@ it('invalid validator throws error', () => {
     return null
   }
 
-  expect(() => render(
+  expect(() => customRender(
     <Component/>,
     { initialState: { form: { input: '' } } }
   ))
     .toThrow(errors.validators())
 
-  expect(() => render(
-    <Component validators={{ input: () => null }} />,
+  expect(() => customRender(
+    <Component validators={() => ({ input: null })} />,
     { initialState: { form: { input: '' } } }
   ))
     .toThrow(errors.validator('input'))
@@ -28,19 +29,19 @@ it('invalid validator throws error', () => {
 it('invalid name throws error', () => {
 
   const Component = ({ name }) => {
-    useForm({ name, validators: {}, onSubmit: () => null })
+    useForm({ name, validators: validatorsMock, onSubmit: () => null })
     return null
   }
 
-  expect(() => render(
+  expect(() => customRender(
     <Component name="name"/>,
     { initialState: { name: {} } } )
   )
     .not.toThrow()
 
-  expect(() => render(<Component/>)).toThrow(errors.name())
-  expect(() => render(<Component name={{}}/>)).toThrow(errors.name({}))
-  expect(() => render(<Component name={() => null}/>)).toThrow(errors.name(() => null))
+  expect(() => customRender(<Component/>)).toThrow(errors.name())
+  expect(() => customRender(<Component name={{}}/>)).toThrow(errors.name({}))
+  expect(() => customRender(<Component name={() => null}/>)).toThrow(errors.name(() => null))
 
 })
 
@@ -48,7 +49,7 @@ it('not specified name attribute on an input throws error', () => {
   const initialState = { form: { input: 'default value' } }
 
   const Component = () => {
-    const form = useForm({ name: 'form', validators: { input: () => true }, onSubmit: () => null })
+    const form = useForm({ name: 'form', validators: validatorsMock, onSubmit: () => null })
     return (
       <input
         value={form.fields.input.value}
@@ -57,7 +58,7 @@ it('not specified name attribute on an input throws error', () => {
     )
   }
 
-  const { getByDisplayValue } = render(<Component/>, { initialState } )
+  const { getByDisplayValue } = customRender(<Component/>, { initialState } )
 
   const input = getByDisplayValue(initialState.form.input)
 
@@ -69,23 +70,20 @@ it('not specified name attribute on an input throws error', () => {
 
 // TODO: Simplify
 it('handleChange validates', () => {
-  const initialState = {
-    form: {
-      input1: 0,
-      input2: 1
-    }
-  }
 
   const onNotify = jest.fn()
 
   const Component = () => {
     const form = useForm({
-      name: 'form',
-      validators: {
-        input1: ({ input1, input2 }) => input1 + input2 === 2,
-        input2: ({ input1, input2 }) => parseInt(input1, 10) + parseInt(input2, 10) === 2,
-        customValidation: ({ input1, input2 }) => input1 + input2 === 2
+      initialState: {
+        input1: 0,
+        input2: 1
       },
+      validators: ({ input1, input2 }) => ({
+        input1: parseInt(input1, 10) + parseInt(input2,10) === 2,
+        input2: parseInt(input1, 10) + parseInt(input2, 10) === 2,
+        customValidation: parseInt(input1, 10) + parseInt(input2, 10) === 2
+      }),
       onNotify,
       onSubmit: () => null
     })
@@ -116,12 +114,11 @@ it('handleChange validates', () => {
     )
   }
 
-  const { getByLabelText, queryByLabelText, debug } = render(<Component/>, { initialState } )
+  const { getByLabelText, queryByLabelText } = render(<Component/>)
 
   const input1 = getByLabelText('input 1')
 
   fireEvent.change(input1, { target: { name: 'input1', value: '2' } })
-
   expect(getByLabelText('input 1 and input 2 must equal 3')).toBeInTheDocument()
 
   const input2 = getByLabelText('input 2')
@@ -145,7 +142,7 @@ it('handleChange validates', () => {
 
 it('if custom change parameters used, and name is not in the form, throw error ', () => {
   const Component = () => {
-    const form = useForm({ name: 'form', validators: { input: () => true }, onSubmit: () => null })
+    const form = useForm({ name: 'form', validators: validatorsMock, onSubmit: () => null })
 
     return (
       <div>
@@ -160,7 +157,7 @@ it('if custom change parameters used, and name is not in the form, throw error '
     )
   }
 
-  const { getByLabelText } = render(<Component/>, { initialState: { form: { input: '' } } })
+  const { getByLabelText } = customRender(<Component/>, { initialState: { form: { input: '' } } })
 
   fireEvent.change(getByLabelText('input'), { target: { name: 'input', value: '' } })
 
@@ -172,59 +169,34 @@ it('if custom change parameters used, and name is not in the form, throw error '
 // TODO: Simplify
 it('handleSubmit validates', () => {
 
-  const initialState = { form: { input1: 'valid', input2: 'validToo' } }
+  const form = {
+    initialState: { input1: 'valid', input2: 'validToo' },
+    validators: validatorsMock,
+    onSubmit: jest.fn(),
+    onNotify: jest.fn()
+  }
+  const input2ErrorValidatorsMock = () => new Proxy({}, { get: (...a) => a[1] !== 'input2' })
 
+  const Component = ({ input2ShouldFail }) => {
+    form.validators =
+      input2ShouldFail ?
+        input2ErrorValidatorsMock :
+        validatorsMock
 
-  // ---------------- TODO: add expects
-  const submitMock = jest.fn()
-  // -----------------
-
-  const input1Spy = jest.fn()
-  const input2Spy = jest.fn()
-
-  const onNotify = jest.fn()
-
-  const Component = ({ input2Result = true }) => {
-    const form = useForm({
-      name: 'form',
-      validators: {
-        input1: (...args) => {
-          input1Spy(...args)
-          return true
-        },
-        input2: (...args) => {
-          input2Spy(...args)
-          return input2Result
-        }
-      },
-      onSubmit: submitMock,
-      onNotify
-    })
+    const f = useForm(form)
     return (
       <form>
-        <input
-          value={form.fields.input1.value}
-          onChange={form.handleChange}
-        />
-        <input
-          value={form.fields.input2.value}
-          onChange={form.handleChange}
-        />
-        <button type="submit" onClick={form.handleSubmit}>Submit</button>
+        <input {...f.inputs.text('input1')}/>
+        <input {...f.inputs.text('input2')}/>
+        <button {...f.inputs.submit()} >Submit</button>
       </form>
     )
   }
-  const { getByText } = render(<Component/>, { initialState } )
 
-  const submitButton = getByText(/Submit/)
+  fireEvent.click(render(<Component/>).getByText(/Submit/))
 
-  fireEvent.click(submitButton)
-
-  expect(input1Spy).toBeCalledWith(initialState.form)
-  expect(input2Spy).toBeCalledWith(initialState.form)
-  expect(submitMock).toBeCalledWith({
-    name: 'form',
-    fields: initialState.form,
+  expect(form.onSubmit).toBeCalledWith({
+    fields: form.initialState,
     setLoading: expect.any(Function),
     notify: expect.any(Function)
   })
@@ -233,22 +205,17 @@ it('handleSubmit validates', () => {
 
   cleanup()
 
-  const { getByText: getByText2 } = render(<Component input2Result={false}/>, { initialState } )
+  fireEvent.click(render(<Component input2ShouldFail/>).getByText(/Submit/))
 
-  const submitButton2 = getByText2(/Submit/)
-
-  fireEvent.click(submitButton2)
-
-  expect(onNotify).toBeCalledWith('submitError', ['input2'])
+  expect(form.onNotify).toBeCalledWith('validationErrors', ['input2'])
 })
 
 
 it('checkboxes\' checked prop used as value when form event is passed to handleChange', () => {
-  const initialState = { form: { input: false } }
   const Component = () => {
     const form = useForm({
-      name: 'form',
-      validators: { input: () => true },
+      initialState:  { input: false },
+      validators: validatorsMock,
       onSubmit: () => null
     })
 
@@ -263,7 +230,7 @@ it('checkboxes\' checked prop used as value when form event is passed to handleC
     )
   }
 
-  const { getByDisplayValue } = render(<Component/>, { initialState } )
+  const { getByDisplayValue } = render(<Component/>)
 
   const input = getByDisplayValue('false')
 

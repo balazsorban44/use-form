@@ -5,6 +5,7 @@ import useForm from '../useForm'
 
 import './utils/console.mock'
 import { errors } from '../handleDevErrors'
+import validatorsMock from './utils/validators.mock'
 
 it('can\'t use useForm outside FormProvider', () => {
 
@@ -34,7 +35,7 @@ it('require initialState prop', () => {
   const name = 'form'
 
   const App = () => {
-    useForm({ name, onSubmit: jest.fn(), validators: {} })
+    useForm({ name, onSubmit: jest.fn(), validators: validatorsMock })
     return null
   }
 
@@ -61,7 +62,7 @@ it('set initialState async', () => {
   const App = () => {
     const { fields } = useForm({
       name: 'form',
-      validators: { input: () => true },
+      validators: validatorsMock,
       onSubmit: jest.fn()
     })
 
@@ -101,7 +102,7 @@ it('set initialState async', () => {
 it('onSubmit prop', () => {
 
   const App = () => {
-    useForm({ name: 'form', validators: {} })
+    useForm({ name: 'form', validators: () => {} })
     return null
   }
 
@@ -145,8 +146,8 @@ it('validators prop', () => {
   expect(() => render(<Component/>))
     .toThrowError(errors.validators())
 
-  const validators = {}
+  const validators = { form: validatorsMock }
   expect(() => render(<Component validators={validators}/>))
     .not
-    .toThrowError(errors.validators(validators))
+    .toThrowError()
 })
