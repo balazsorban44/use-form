@@ -58,9 +58,11 @@ function useFormContext(name, initialState) {
   }
 }
 
+const getForms = () => ({ ...useContext(FormContext).forms })
 
 export {
   FormProvider,
+  getForms,
   useFormContext
 }
 

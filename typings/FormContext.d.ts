@@ -108,7 +108,15 @@ declare function FormProvider<
   N2 extends NotificationHandler<SubmitNotificationType>
 >(props: FormProviderProps<T, N1, N2>) : JSX.Element
 
+
+/**
+ * Returns an unmutable object
+ * that contains all the forms in the FormContext.
+ */
+declare function getForms() : Forms<Object>
+
 export {
   FormContext as default,
+  getForms,
   FormProvider
 }
