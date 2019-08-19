@@ -1,5 +1,5 @@
 import React, { createContext, useReducer, useEffect, useRef, useContext, useMemo } from 'react'
-import handleDevErrors, { errors } from './handleDevErrors'
+import { errors } from './handleDevErrors'
 import reducer from './reducer'
 
 const FormContext = createContext()
@@ -19,9 +19,10 @@ function FormProvider({
    */
   const initialStateRef = useRef(initialState)
   useEffect(() => {
-    if (JSON.stringify(initialState) !== JSON.stringify(initialStateRef.current)) {
+    if (
+      JSON.stringify(initialState) !== JSON.stringify(initialStateRef.current)
+    )
       dispatch({ payload: initialState })
-    }
   }, [initialState])
 
   const value = useMemo(() => ({
