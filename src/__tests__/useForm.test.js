@@ -45,26 +45,24 @@ it('invalid name throws error', () => {
 
 })
 
-it('not specified name attribute on an input throws error', () => {
-  const initialState = { form: { input: 'default value' } }
+it('wrong field names in handleChange throws error', () => {
 
-  const Component = () => {
-    const form = useForm({ name: 'form', validators: validatorsMock, onSubmit: () => null })
-    return (
-      <input
-        value={form.fields.input.value}
-        onChange={form.handleChange}
-      />
-    )
+  const Component = ({ handleChangeParams }) => {
+    useForm({
+      initialState: {},
+      validators: validatorsMock,
+      onSubmit: () => null
+    }).handleChange(handleChangeParams)
+    return null
   }
 
-  const { getByDisplayValue } = customRender(<Component/>, { initialState } )
+  expect(() => render (<Component handleChangeParams={{ target: {} }}/>))
+    .toThrow(new Error(errors.missingFields([undefined])))
 
-  const input = getByDisplayValue(initialState.form.input)
 
-  fireEvent.change(input, { target: { value: '' } })
-  expect(console.error)
-    .toBeCalledWith(new Error('Invalid name attribute on input. "" must be present in the form.'))
+  expect(() => render (<Component handleChangeParams={{ field: '' }}/>))
+    .toThrow(new Error(errors.missingFields(['field'])))
+
 })
 
 
@@ -140,31 +138,6 @@ it('handleChange validates', () => {
   jest.resetAllMocks()
 })
 
-it('if custom change parameters used, and name is not in the form, throw error ', () => {
-  const Component = () => {
-    const form = useForm({ name: 'form', validators: validatorsMock, onSubmit: () => null })
-
-    return (
-      <div>
-        <label htmlFor="input">input</label>
-        <input
-          onChange={() => {form.handleChange({ name: 'value' })}}
-          id="input"
-          name="input"
-          value="value"
-        />
-      </div>
-    )
-  }
-
-  const { getByLabelText } = customRender(<Component/>, { initialState: { form: { input: '' } } })
-
-  fireEvent.change(getByLabelText('input'), { target: { name: 'input', value: '' } })
-
-  expect(console.error).toBeCalledWith(new TypeError('Invalid fields object. Are all the keys present in the form?'))
-
-
-})
 
 // TODO: Simplify
 it('handleSubmit validates', () => {
