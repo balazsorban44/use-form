@@ -1,12 +1,10 @@
-import isObject from './utils/isObject'
 import { version } from '../package.json'
 
 export const warnings = {
   alpha: [
-    '⚠  CAUTION!  ⚠ ',
-    `You are using another-use-form-hook@${version}.`,
-    'This is highly experimental. It may contain bugs 🐛',
-    'Do NOT use in production',
+    '⚠  CAUTION! ⚠ ',
+    `another-use-form-hook@${version} is an experimental version`,
+    'and it may contain bugs 🐛',
   ].join('\n')
 }
 
@@ -38,11 +36,11 @@ export const errors = {
   outsideProvider: 'useForm cannot be used outside a FormProvider'
 }
 
-
 export default function handleDevErrors ({ name, initialState, form, validators, onSubmit }) {
 
-  if (version.includes('alpha'))
+  if (version.includes('alpha') && !process.env.NO_USE_FORM_ALPHA_WARNING) {
     console.warn(warnings.alpha)
+  }
 
   if (typeof name !== 'string' && !initialState)
     throw new TypeError(errors.name(name))
