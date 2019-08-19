@@ -31,7 +31,7 @@ export default function changeHandler({ dispatch, setErrors, form, name, onNotif
 
       const validatorKeys = Object.keys(validators({}))
       if (process.env.NODE_ENV !== 'production' && args[1].some(v => !validatorKeys.includes(v))) {
-        throw new Error(`Some of the validations (${validations}) are not present in the validators object.`)
+        throw new Error(`Some of the validations (${args[1]}) are not present in the validators object.`)
       }
       validations = args[1]
     }
