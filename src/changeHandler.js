@@ -28,7 +28,9 @@ export default function changeHandler({ dispatch, setErrors, form, name, onNotif
         throw new TypeError('Invalid fields object. Are all the keys present in the form?')
     }
     if (Array.isArray(args[1])) {
-      if (process.env.NODE_ENV !== 'production' && args[1].some(v => !(v in validators))) {
+
+      const validatorKeys = Object.keys(validators({}))
+      if (process.env.NODE_ENV !== 'production' && args[1].some(v => !validatorKeys.includes(v))) {
         throw new Error(`Some of the validations (${validations}) are not present in the validators object.`)
       }
       validations = args[1]

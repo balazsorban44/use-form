@@ -8,6 +8,6 @@ export default function validate({
   return (validations || Object.keys(fields))
     .reduce((acc, field) => ({
       ...acc,
-      [field]: !validators[field]({ ...form, ...fields }, submitting)
+      [field]: !validators({ ...form, ...fields }, submitting)[field]
     }), {})
 }
