@@ -3,7 +3,7 @@ export default function validate({
   validators,
   validations,
   form = {},
-  submitting
+  submitting = false
 }) {
   return (validations || Object.keys(fields))
     .reduce((acc, field) => ({
