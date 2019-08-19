@@ -55,7 +55,7 @@ export default function handleDevErrors ({ name, initialState, form, validators,
 
   } else {
     const invalidValidators = Object.keys(form).filter(key =>
-      typeof validators(form)[key] !== 'boolean'
+      typeof validators(form, false)[key] !== 'boolean'
     )
     if (invalidValidators.length)
       throw new TypeError(errors.validator(invalidValidators))
