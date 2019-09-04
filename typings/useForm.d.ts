@@ -43,7 +43,7 @@ declare function useForm(useFormParams: {
 }) : UseForm
 
 
-interface UseForm {
+export interface UseForm {
   /**
    * All of the form field values.
    * Also contains information about
