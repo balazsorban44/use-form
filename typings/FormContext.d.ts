@@ -73,7 +73,7 @@ type SubmitFunction<T, N1, F, N2> = (SubmitParams: {
 }) => void
 
 
-interface FormProviderProps<T, N1, N2> {
+export interface FormProviderProps<T, N1, N2> {
   /**You can utilize useForm anywhere from this element down the tree.*/
   children: React.ReactElement,
   /** Give the initial state of the forms.

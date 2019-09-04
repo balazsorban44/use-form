@@ -6,13 +6,13 @@ export interface Fields {
 }
 
 /** Hook to set up a form. */
-declare function useForm(useFormParams: {
+declare function useForm<N extends string>(useFormParams: {
   /**
    * Determine which form should we hook into in the Forms Context.
    * This makes it possible to handle multiple forms.
    * (Each form should have their own unique names.)
    */
-  name: string
+  name: N
   /**
    * An object containing validator functions.
    * Can be used to test interdependent fields.
@@ -40,10 +40,12 @@ declare function useForm(useFormParams: {
    * @see https://github.com/balazsorban44/use-form#usage
    */
   context?: React.Context<any>
-}) : UseForm
+}) : UseForm<N>
 
 
-export interface UseForm {
+export interface UseForm<N extends string> {
+  /** Name of the form */
+  name: N
   /**
    * All of the form field values.
    * Also contains information about
