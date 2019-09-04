@@ -37,6 +37,7 @@ export default function useForm ({ name, initialState, validators, onSubmit, onN
   const inputs = inputPropGenerators({ fields, handleChange, handleSubmit })
 
   return ({
+    name,
     fields,
 
     handleChange,
