@@ -38,9 +38,9 @@ export const errors = {
 
 export default function handleDevErrors ({ name, initialState, form, validators, onSubmit }) {
 
-  if (version.includes('alpha') && !process.env.NO_USE_FORM_ALPHA_WARNING) {
-    console.warn(warnings.alpha)
-  }
+  // if (version.includes('alpha') && !process.env.NO_USE_FORM_ALPHA_WARNING) {
+  //   console.warn(warnings.alpha)
+  // }
 
   if (typeof name !== 'string' && !initialState)
     throw new TypeError(errors.name(name))
