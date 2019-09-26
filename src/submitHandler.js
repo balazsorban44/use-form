@@ -1,4 +1,5 @@
 import validate from './validate'
+import { errors as devErrors } from './handleDevErrors'
 
 /**
  * Called when a form is submitted.
@@ -7,7 +8,6 @@ import validate from './validate'
  */
 export default function submitHandler({ e, name, form, submit, setLoading, setErrors, onNotify, validators }) {
   e?.preventDefault?.()
-
   const errors = validate({ fields: form, validators, submitting: true })
   setErrors(e => ({ ...e, ...errors }))
 
@@ -22,11 +22,11 @@ export default function submitHandler({ e, name, form, submit, setLoading, setEr
       notify: (...args) => {
         if (onNotify)
           if (process.env.NODE_ENV !== 'production' && !['submitSuccess', 'submitError'].includes(args[0]))
-            throw new TypeError('notify parameters inside handleSubmit must be either "submitSuccess" or "submitError"')
+            throw new TypeError(devErrors.onNotifyWrongParam)
           else
             onNotify(...args)
         else if(process.env.NODE_ENV !== 'production')
-          throw new Error('Please define an onNotify function as one of the parameters of useForm.')
+          throw new Error(devErrors.onNotify)
       }
     }
 

@@ -19,6 +19,8 @@ export const errors = {
     'docs: TODO: add link',
   ].join('\n'),
   missingFields: fields => `The following field(s) are missing from the form: ${fields}`,
+  onNotify: 'If you use notify, you must define onNotify as a parameter in useForm.',
+  onNotifyWrongParam: 'notify type must be either "submitSuccess" or "submitError"',
   onSubmit: onSubmit => [
     `onSubmit must be a function, but it was ${typeof onSubmit}.`,
     'docs: TODO: add link',
