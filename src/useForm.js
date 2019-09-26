@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useState } from 'react'
 import { useFormContext } from './FormContext'
 
 import inputPropGenerators from './inputPropGenerators'
@@ -25,14 +25,11 @@ export default function useForm ({ name, initialState, validators, onSubmit, onN
   const fields = concatFieldsAndErrors(form, errors)
 
 
-  const handleChange = useCallback((...args) =>
+  const handleChange = (...args) =>
     changeHandler({ dispatch, setErrors, form, name, onNotify, validators, args })
-  , [dispatch, form, name, onNotify, validators])
 
-
-  const handleSubmit = useCallback(e =>
+  const handleSubmit = e =>
     submitHandler({ e, name, form, submit: onSubmit, setLoading, onNotify, setErrors, validators })
-  , [name, form, onSubmit, onNotify, validators])
 
   const inputs = inputPropGenerators({ fields, handleChange, handleSubmit })
 
