@@ -6,24 +6,24 @@ const FormContext = createContext()
 
 function FormProvider({
   children,
-  initialState = {},
+  initialStates = {},
   validators = undefined,
   onSubmit = undefined,
   onNotify = undefined
 }) {
-  const [forms, dispatch] = useReducer(reducer, initialState)
+  const [forms, dispatch] = useReducer(reducer, initialStates)
 
   /**
-   * We override initialState if the prop has changed.
-   * Useful for asynchronously fetched initialStates.
+   * We override initialStates if the prop has changed.
+   * Useful for asynchronously fetched initialStatess.
    */
-  const initialStateRef = useRef(initialState)
+  const initialStatesRef = useRef(initialStates)
   useEffect(() => {
     if (
-      JSON.stringify(initialState) !== JSON.stringify(initialStateRef.current)
+      JSON.stringify(initialStates) !== JSON.stringify(initialStatesRef.current)
     )
-      dispatch({ payload: initialState })
-  }, [initialState])
+      dispatch({ payload: initialStates })
+  }, [initialStates])
 
   const value = useMemo(() => ({
     forms,
@@ -42,7 +42,7 @@ function FormProvider({
 
 
 function useFormContext(name, initialState) {
-  const [form, dispatch] = useReducer(reducer, initialState)
+  const [form, dispatch] = useReducer(reducer, initialState, () => initialState)
   const context = useContext(FormContext)
 
   if (!name) return { form, dispatch }

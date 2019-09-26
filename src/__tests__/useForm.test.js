@@ -14,13 +14,13 @@ it('invalid validator throws error', () => {
 
   expect(() => customRender(
     <Component/>,
-    { initialState: { form: { input: '' } } }
+    { initialStates: { form: { input: '' } } }
   ))
     .toThrow(errors.validators())
 
   expect(() => customRender(
     <Component validators={() => ({ input: null })} />,
-    { initialState: { form: { input: '' } } }
+    { initialStates: { form: { input: '' } } }
   ))
     .toThrow(errors.validator('input'))
 
@@ -35,7 +35,7 @@ it('invalid name throws error', () => {
 
   expect(() => customRender(
     <Component name="name"/>,
-    { initialState: { name: {} } } )
+    { initialStates: { name: {} } } )
   )
     .not.toThrow()
 

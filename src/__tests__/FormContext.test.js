@@ -30,7 +30,7 @@ it('can\'t use useForm outside FormProvider', () => {
 
 })
 
-it('require initialState prop', () => {
+it('require initialStates prop', () => {
 
   const name = 'form'
 
@@ -39,8 +39,8 @@ it('require initialState prop', () => {
     return null
   }
 
-  const Component = ({ initialState }) => (
-    <FormProvider initialState={initialState}>
+  const Component = ({ initialStates }) => (
+    <FormProvider initialStates={initialStates}>
       <App/>
     </FormProvider>
   )
@@ -49,14 +49,14 @@ it('require initialState prop', () => {
   expect(() => render(<Component/>))
     .toThrowError(errors.initialState(name))
 
-  const initialState = { [name]: {} }
-  expect(() => render(<Component initialState={initialState}/>))
+  const initialStates = { [name]: {} }
+  expect(() => render(<Component initialStates={initialStates}/>))
     .not
     .toThrowError(errors.initialState(name))
 
 })
 
-it('set initialState async', () => {
+it('set initialStates async', () => {
   jest.useFakeTimers()
 
   const App = () => {
@@ -70,7 +70,7 @@ it('set initialState async', () => {
   }
 
   const Component = () => {
-    const [initialState, setInitialState] = useState({ form: { input: '' } })
+    const [initialStates, setInitialState] = useState({ form: { input: '' } })
 
     useEffect(() => {
       setTimeout(() => {
@@ -80,7 +80,7 @@ it('set initialState async', () => {
 
 
     return (
-      <FormProvider initialState={initialState}>
+      <FormProvider initialStates={initialStates}>
         <App/>
       </FormProvider>
     )
@@ -93,7 +93,7 @@ it('set initialState async', () => {
 
   act(() => {jest.runAllTimers()})
 
-  // new initialState is fetched
+  // new initialStates is fetched
   expect(getByText('VALUE')).toBeInTheDocument()
 
   jest.useRealTimers()
@@ -108,7 +108,7 @@ it('onSubmit prop', () => {
 
   const Component = ({ onSubmit }) => (
     <FormProvider
-      initialState={{ form: {} }}
+      initialStates={{ form: {} }}
       onSubmit={onSubmit}
     >
       <App/>
@@ -135,7 +135,7 @@ it('validators prop', () => {
 
   const Component = ({ validators }) => (
     <FormProvider
-      initialState={{ form: { input: 'value' } }}
+      initialStates={{ form: { input: 'value' } }}
       validators={validators}
     >
       <App/>

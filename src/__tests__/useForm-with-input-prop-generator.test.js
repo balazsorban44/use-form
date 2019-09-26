@@ -3,7 +3,7 @@ import { render, fireEvent } from '../test-utils'
 import validatorsMock from './utils/validators.mock'
 import useForm from '../useForm'
 
-const initialState = {
+const initialStates = {
   form:  {
     text: 'text',
     radio: 'option-1',
@@ -26,7 +26,7 @@ const initialState = {
 }
 
 const providerProps = {
-  initialState,
+  initialStates,
   onSubmit: jest.fn()
 }
 
@@ -89,7 +89,7 @@ describe('v3 input props', () => {
     it(`Strings: ${type} input`, () => {
       const { getByDisplayValue } = render(<App/>, providerProps)
       fireEvent.change(
-        getByDisplayValue(initialState.form[type]),
+        getByDisplayValue(initialStates.form[type]),
         { target: { name: type, value: `new ${type}` } }
       )
       expect(getByDisplayValue(`new ${type}`)).toBeInTheDocument()
@@ -113,7 +113,7 @@ describe('v3 input props', () => {
     const value = new Date().toISOString().slice(0, 10)
 
     fireEvent.change(
-      getByDisplayValue(initialState.form.date),
+      getByDisplayValue(initialStates.form.date),
       { target: { name: 'date', value } }
     )
     expect(getByDisplayValue(value)).toBeInTheDocument()
@@ -125,7 +125,7 @@ describe('v3 input props', () => {
     const value = new Date().toISOString().slice(0, 16)
 
     fireEvent.change(
-      getByDisplayValue(initialState.form.datetimeLocal),
+      getByDisplayValue(initialStates.form.datetimeLocal),
       { target: { name: 'datetimeLocal', value } }
     )
     expect(getByDisplayValue(value)).toBeInTheDocument()
@@ -137,7 +137,7 @@ describe('v3 input props', () => {
     const value = '14:00'
 
     fireEvent.change(
-      getByDisplayValue(initialState.form.time),
+      getByDisplayValue(initialStates.form.time),
       { target: { name: 'time', value } }
     )
     expect(getByDisplayValue(value)).toBeInTheDocument()
@@ -149,7 +149,7 @@ describe('v3 input props', () => {
     const value = '2019-W33'
 
     fireEvent.change(
-      getByDisplayValue(initialState.form.week),
+      getByDisplayValue(initialStates.form.week),
       { target: { name: 'week', value } }
     )
     expect(getByDisplayValue(value)).toBeInTheDocument()
@@ -161,7 +161,7 @@ describe('v3 input props', () => {
     const value = '2019-08'
 
     fireEvent.change(
-      getByDisplayValue(initialState.form.month),
+      getByDisplayValue(initialStates.form.month),
       { target: { name: 'month', value } }
     )
     expect(getByDisplayValue(value)).toBeInTheDocument()
@@ -226,7 +226,7 @@ describe('v3 input props', () => {
     expect(providerProps.onSubmit).toBeCalledWith(
       expect.objectContaining({
         name: 'form',
-        fields: initialState.form,
+        fields: initialStates.form,
         notify: expect.any(Function),
         setLoading: expect.any(Function)
       })
