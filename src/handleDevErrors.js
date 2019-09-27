@@ -16,24 +16,24 @@ export const errors = {
 
   initialState: name => [
     `The initial state for "${name}" is invalid.`,
-    'docs: TODO: add link',
+    'docs: https://github.com/balazsorban44/use-form/wiki#initialStates',
   ].join('\n'),
   missingFields: fields => `The following field(s) are missing from the form: ${fields}`,
   onNotify: 'If you use notify, you must define onNotify as a parameter in useForm.',
   onNotifyWrongParam: 'notify type must be either "submitSuccess" or "submitError"',
   onSubmit: onSubmit => [
     `onSubmit must be a function, but it was ${typeof onSubmit}.`,
-    'docs: TODO: add link',
+    'docs: https://github.com/balazsorban44/use-form/wiki#use-form-onSubmit',
   ].join('\n'),
 
   validators: validators => [
     `validators must be a function, but it was ${typeof validators}.`,
-    'docs: TODO: add link',
+    'docs: https://github.com/balazsorban44/use-form/wiki#use-form-validators',
   ].join('\n'),
 
   validator: keys => [
     `The validator(s) for ${keys} in validators are invalid.`,
-    'docs: TODO: add link',
+    'docs: https://github.com/balazsorban44/use-form/wiki#use-form-validators',
   ].join('\n'),
   outsideProvider: 'useForm cannot be used outside a FormProvider'
 }
