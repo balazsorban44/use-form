@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import useForm from '../useForm'
-import { render, fireEvent } from '@testing-library/react'
+import { render, fireEvent, waitForElement } from '@testing-library/react'
 import validatorsMock from './utils/validators.mock'
 
 it('works without provider', () => {
@@ -14,7 +14,7 @@ it('works without provider', () => {
     return <input {...inputs.text('input')}/>
   }
 
-  const { debug, getByDisplayValue } = render(<App/>)
+  const { getByDisplayValue } = render(<App/>)
 
   fireEvent.change(
     getByDisplayValue(form.initialState.input),
@@ -22,4 +22,31 @@ it('works without provider', () => {
   )
 
   expect(getByDisplayValue('new value')).toBeInTheDocument()
+})
+
+
+it('set initialState async', async () => {
+
+  const App = () => {
+    const [initialState, setInitialState] = useState({ input: 'initial value' })
+
+    useEffect(() => {
+      setTimeout(() => {
+        setInitialState({ input: 'VALUE' })
+      }, 100)
+    }, [])
+    const form = {
+      initialState,
+      validators: validatorsMock,
+      onSubmit: jest.fn()
+    }
+    const { inputs } = useForm(form)
+    return <input {...inputs.text('input')}/>
+  }
+
+  const { getByDisplayValue } = render(<App/>)
+
+  await waitForElement(() => getByDisplayValue('VALUE'))
+
+  expect(getByDisplayValue('VALUE')).toBeInTheDocument()
 })
