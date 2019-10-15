@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { render } from '@testing-library/react'
 import { render as customRender, fireEvent, cleanup } from '../test-utils'
 import useForm from '../useForm'
@@ -63,6 +63,10 @@ it('wrong field names in handleChange throws error', () => {
   expect(() => render (<Component handleChangeParams={{ field: '' }}/>))
     .toThrow(new Error(errors.missingFields(['field'])))
 
+  process.env.NODE_ENV = 'production'
+  expect(() => render (<Component handleChangeParams={{ field: '' }}/>))
+    .not.toThrow(new Error(errors.missingFields(['field'])))
+  process.env.NODE_ENV = 'test'
 })
 
 
@@ -217,4 +221,34 @@ it('checkboxes\' checked prop used as value when form event is passed to handleC
 
   expect(getByDisplayValue('true')).toBeInTheDocument()
 
+})
+
+
+it('if onNotify is not defined, throw error ', () => {
+  const App = ({ useFormParams, notifyParam }) => {
+    const form = useForm({
+      initialState: { input: 'initial value' },
+      onSubmit: ({ notify }) => {notify(notifyParam)},
+      validators: validatorsMock,
+      ...useFormParams
+    })
+
+    useEffect(() => {
+      form.handleSubmit()
+    }, [])
+    return null
+  }
+
+  expect(() => render(<App/>)).toThrowError(new Error(errors.onNotify))
+  process.env.NODE_ENV = 'production'
+  expect(() => render(<App/>)).not.toThrowError(new Error(errors.onNotify))
+  process.env.NODE_ENV = 'test'
+
+  expect(() => render(<App notifyParam="INVALID" useFormParams={{ onNotify: jest.fn() }}/>))
+    .toThrowError(new Error(errors.onNotifyWrongParam))
+
+  const onNotify = jest.fn()
+  const notifyParam = 'submitSuccess'
+  render(<App notifyParam={notifyParam} useFormParams={{ onNotify }}/>)
+  expect(onNotify).toBeCalledWith(notifyParam)
 })

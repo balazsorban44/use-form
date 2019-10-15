@@ -221,7 +221,7 @@ describe('v3 input props', () => {
 
 
   it('Submit button', () => {
-    const { debug, getByText } = render(<App/>, providerProps)
+    const { getByText } = render(<App/>, providerProps)
     fireEvent.click(getByText('Submit'))
     expect(providerProps.onSubmit).toBeCalledWith(
       expect.objectContaining({

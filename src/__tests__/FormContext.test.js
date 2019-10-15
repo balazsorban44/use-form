@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { FormProvider } from '../FormContext'
+import { FormProvider, getForms } from '../FormContext'
 import { render, act } from '@testing-library/react'
 import useForm from '../useForm'
 
@@ -150,4 +150,31 @@ it('validators prop', () => {
   expect(() => render(<Component validators={validators}/>))
     .not
     .toThrowError()
+})
+
+
+it('can get all the form values inside a FormProvider', () => {
+  const forms = {
+    form1: { input: 'initial value form 1' },
+    form2: { input: 'initial value form 2' }
+  }
+
+  const App = () => {
+    return (
+      <pre data-testid="pre">
+        {JSON.stringify(getForms())}
+      </pre>
+    )
+  }
+
+  const AppWithProvider = () => {
+    return (
+      <FormProvider initialStates={forms}>
+        <App/>
+      </FormProvider>
+    )
+  }
+
+  const { getByTestId } = render(<AppWithProvider/>)
+  expect(getByTestId('pre')).toHaveTextContent(JSON.stringify(forms))
 })
