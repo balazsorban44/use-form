@@ -15,7 +15,7 @@ function FormProvider({
 
   /**
    * We override initialStates if the prop has changed.
-   * Useful for asynchronously fetched initialStatess.
+   * Useful for asynchronously fetched initialState.
    */
   const initialStatesRef = useRef(initialStates)
   useEffect(() => {
@@ -44,6 +44,18 @@ function FormProvider({
 function useFormContext(name, initialState) {
   const [form, dispatch] = useReducer(reducer, initialState, () => initialState)
   const context = useContext(FormContext)
+
+  /**
+   * We override initialState if the prop has changed.
+   * Useful for asynchronously fetched initialState.
+   */
+  const initialStateRef = useRef(initialState)
+  useEffect(() => {
+    if (
+      JSON.stringify(initialState) !== JSON.stringify(initialStateRef.current)
+    )
+      dispatch({ payload: initialState })
+  }, [initialState])
 
   if (!name) return { form, dispatch }
 
