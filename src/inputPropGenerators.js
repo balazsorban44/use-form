@@ -52,6 +52,7 @@ const inputPropsGenerator = ({ type, fields, handleChange, handleSubmit }) =>
         type: 'submit',
         onClick: handleSubmit
       }
+      break
     default:
       break
     }

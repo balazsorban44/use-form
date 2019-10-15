@@ -10,11 +10,11 @@ import concatFieldsAndErrors from './utils/concatFieldsAndErrors'
 
 export default function useForm ({ name, initialState, validators, onSubmit, onNotify }) {
 
-  const { form, dispatch, ...c } = useFormContext(name, initialState)
+  const { form, dispatch, ...context } = useFormContext(name, initialState)
 
-  validators = validators || c.validators
-  onNotify = onNotify || c.onNotify
-  onSubmit = onSubmit || c.onSubmit
+  validators = validators || context.validators
+  onNotify = onNotify || context.onNotify
+  onSubmit = onSubmit || context.onSubmit
 
   if (process.env.NODE_ENV !== 'production')
     handleDevErrors({ name, initialState, form, validators, onSubmit })
