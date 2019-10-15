@@ -18,7 +18,7 @@ export default function changeHandler({ dispatch, setErrors, form, name, onNotif
     if (process.env.NODE_ENV !== 'production' && !Object.keys(form).includes(name))
       throw new Error(devErrors.missingFields([name]))
 
-    fields[name] = convert(type, value, checked, form[name])
+    fields[name] = convert(type, value, checked)
 
   } else {
     if (process.env.NODE_ENV !== 'production') {
@@ -28,11 +28,6 @@ export default function changeHandler({ dispatch, setErrors, form, name, onNotif
     fields = args[0]
   }
   if (Array.isArray(args[1])) {
-
-    const validatorKeys = Object.keys(validators({}))
-    if (process.env.NODE_ENV !== 'production' && args[1].some(v => !validatorKeys.includes(v))) {
-      throw new Error(`Some of the validations (${args[1]}) are not present in the validators object.`)
-    }
     validations = args[1]
   }
 

@@ -37,10 +37,7 @@ const inputPropsGenerator = ({ type, fields, handleChange, handleSubmit }) =>
       props.id = value
       break
     case 'checkbox':
-      props.checked =
-        Array.isArray(field.value) ?
-          field.value.includes(value) :
-          field.value
+      props.checked = field.value
       break
     case 'select':
       delete props.type
