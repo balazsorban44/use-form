@@ -1,60 +1,9 @@
-import React from 'react'
-import { render, fireEvent, cleanup } from '../test-utils'
-
+import React, { useEffect } from 'react'
+import { render } from '@testing-library/react'
+import { render as customRender, fireEvent, cleanup } from '../test-utils'
 import useForm from '../useForm'
-
-
-describe('warns about future changes', () => {
-  it('validatorObject changed to validators', () => {
-    const Component = () => {
-      useForm({ name: 'form' , validatorObject: {} })
-      return null
-    }
-    render(<Component/>, { initialState: { form: {} } } )
-    expect(console.warn).toBeCalledWith('validatorObject is being deprecated. Please use validators instead.')
-
-    console.warn.mockReset()
-    process.env.NODE_ENV = 'production'
-    render(<Component/>, { initialState: { form: {} } } )
-    expect(console.warn).not.toBeCalled()
-    process.env.NODE_ENV = 'test'
-
-  })
-
-  it('validations not required anymore', () => {
-    const Component = () => {
-      useForm({ name: 'form' , validations: [], validators: {} })
-      return null
-    }
-    render(<Component/>, { initialState: { form: {} } } )
-    expect(console.warn).toBeCalledWith([
-      'validations is being deprecated. You do not have to define it anymore.',
-      'When submitting, all the validator functions defined in validators will be run.',
-    ].join(' '))
-
-    console.warn.mockReset()
-    process.env.NODE_ENV = 'production'
-    render(<Component/>, { initialState: { form: {} } })
-    expect(console.warn).not.toBeCalled()
-    process.env.NODE_ENV = 'test'
-  })
-})
-
-
-it('input field has no defined validator throws error', () => {
-
-  const Component = () => {
-    useForm({ name: 'form', validators: {} })
-    return null
-  }
-
-  expect(() => render(
-    <Component/>,
-    { initialState: { form: { input: '' } } }
-  ))
-    .toThrow('You forgot to define a validator in "form" for the field: input')
-})
-
+import { errors } from '../handleDevErrors'
+import validatorsMock from './utils/validators.mock'
 
 it('invalid validator throws error', () => {
 
@@ -63,88 +12,82 @@ it('invalid validator throws error', () => {
     return null
   }
 
-  expect(() => render(
+  expect(() => customRender(
     <Component/>,
-    { initialState: { form: { input: '' } } }
+    { initialStates: { form: { input: '' } } }
   ))
-    .toThrow('validators must be an object, but it was undefined.')
+    .toThrow(errors.validators())
 
-  expect(() => render(
-    <Component
-      validators={{ input: () => null }}
-    />,
-    { initialState: { form: { input: '' } } }
+  expect(() => customRender(
+    <Component validators={() => ({ input: null })} />,
+    { initialStates: { form: { input: '' } } }
   ))
-    .toThrow([
-      'The validator for input in validators did not return a boolean.',
-      'To validate a field, define a function that returns',
-      'true if valid, and false if invalid.',
-    ].join(' '))
+    .toThrow(errors.validator('input'))
 
 })
 
 it('invalid name throws error', () => {
 
   const Component = ({ name }) => {
-    useForm({ name, validators: {} })
+    useForm({ name, validators: validatorsMock, onSubmit: () => null })
     return null
   }
 
-  expect(() => render(
+  expect(() => customRender(
     <Component name="name"/>,
-    { initialState: { name: {} } } )
+    { initialStates: { name: {} } } )
   )
     .not.toThrow()
 
-  expect(() => render(<Component/>)).toThrow('name must be a string, but it was undefined.')
-  expect(() => render(<Component name={{}}/>)).toThrow('name must be a string, but it was object.')
-  expect(() => render(<Component name={() => null}/>)).toThrow('name must be a string, but it was function.')
+  expect(() => customRender(<Component/>)).toThrow(errors.name())
+  expect(() => customRender(<Component name={{}}/>)).toThrow(errors.name({}))
+  expect(() => customRender(<Component name={() => null}/>)).toThrow(errors.name(() => null))
 
 })
 
-it('not specified name attribute on an input throws error', () => {
-  const initialState = { form: { input: 'default value' } }
+it('wrong field names in handleChange throws error', () => {
 
-  const Component = () => {
-    const form = useForm({ name: 'form', validators: { input: () => true } })
-    return (
-      <input
-        value={form.fields.input.value}
-        onChange={form.handleChange}
-      />
-    )
+  const Component = ({ handleChangeParams }) => {
+    useForm({
+      initialState: {},
+      validators: validatorsMock,
+      onSubmit: () => null
+    }).handleChange(handleChangeParams)
+    return null
   }
 
-  const { getByDisplayValue } = render(<Component/>, { initialState } )
+  expect(() => render (<Component handleChangeParams={{ target: {} }}/>))
+    .toThrow(new Error(errors.missingFields([undefined])))
 
-  const input = getByDisplayValue(initialState.form.input)
 
-  fireEvent.change(input, { target: { value: '' } })
-  expect(console.error)
-    .toBeCalledWith(new Error('Invalid name attribute on input. "" must be present in the form.'))
+  expect(() => render (<Component handleChangeParams={{ field: '' }}/>))
+    .toThrow(new Error(errors.missingFields(['field'])))
+
+  process.env.NODE_ENV = 'production'
+  expect(() => render (<Component handleChangeParams={{ field: '' }}/>))
+    .not.toThrow(new Error(errors.missingFields(['field'])))
+  process.env.NODE_ENV = 'test'
 })
 
 
 // TODO: Simplify
 it('handleChange validates', () => {
-  const initialState = {
-    form: {
-      input1: 0,
-      input2: 1
-    }
-  }
 
   const onNotify = jest.fn()
 
   const Component = () => {
     const form = useForm({
-      name: 'form',
-      validators: {
-        input1: ({ input1, input2 }) => input1 + input2 === 2,
-        input2: ({ input1, input2 }) => parseInt(input1, 10) + parseInt(input2, 10) === 2,
-        customValidation: ({ input1, input2 }) => input1 + input2 === 2
+      initialState: {
+        input1: 0,
+        input2: 1
       },
-      onNotify
+      validators: ({ input1, input2 }) => ({
+        input1: parseInt(input1, 10) + parseInt(input2,10) === 2,
+        input2: parseInt(input1, 10) + parseInt(input2, 10) === 2,
+        customValidation: parseInt(input1, 10) + parseInt(input2, 10) === 2
+      }),
+      onNotify,
+      onSubmit: () => null
     })
 
     const customHandleChange = (validations = []) => ({ target: { name, value } }) => {
@@ -160,7 +103,7 @@ it('handleChange validates', () => {
           name="input1"
           id="input1"
           value={form.fields.input1.value}
-          onChange={customHandleChange(['customValidation'])}
+          onChange={customHandleChange(['input1', 'customValidation'])}
         />
         <label htmlFor="input2">{form.fields.input2.error ? 'input 2 error' : 'input 2'}</label>
         <input
@@ -173,12 +116,11 @@ it('handleChange validates', () => {
     )
   }
 
-  const { getByLabelText, queryByLabelText } = render(<Component/>, { initialState } )
+  const { getByLabelText, queryByLabelText } = render(<Component/>)
 
   const input1 = getByLabelText('input 1')
 
   fireEvent.change(input1, { target: { name: 'input1', value: '2' } })
-
   expect(getByLabelText('input 1 and input 2 must equal 3')).toBeInTheDocument()
 
   const input2 = getByLabelText('input 2')
@@ -193,123 +135,65 @@ it('handleChange validates', () => {
 
   // Notifies about errors.
   expect(onNotify).toBeCalledTimes(2)
-  expect(onNotify).toBeCalledWith('validationError', 'input1')
-  expect(onNotify).toBeCalledWith('validationError', 'input2')
+  expect(onNotify).toBeCalledWith('validationErrors', ['input1', 'customValidation'])
+  expect(onNotify).toBeCalledWith('validationErrors', ['input2'])
 
 
   jest.resetAllMocks()
 })
 
-it('if custom change parameters used, and name is not in the form, throw error ', () => {
-  const Component = () => {
-    const form = useForm({ name: 'form', validators: { input: () => true } })
-
-    return (
-      <div>
-        <label htmlFor="input">input</label>
-        <input
-          onChange={() => {form.handleChange({ name: 'value' })}}
-          id="input"
-          name="input"
-          value="value"
-        />
-      </div>
-    )
-  }
-
-  const { getByLabelText } = render(<Component/>, { initialState: { form: { input: '' } } })
-
-  fireEvent.change(getByLabelText('input'), { target: { name: 'input', value: '' } })
-
-  expect(console.error).toBeCalledWith(new TypeError('Invalid fields object. Are all the keys present in the form?'))
-
-
-})
 
 // TODO: Simplify
 it('handleSubmit validates', () => {
 
-  const initialState = { form: { input1: 'valid', input2: 'validToo' } }
+  const form = {
+    initialState: { input1: 'valid', input2: 'validToo' },
+    validators: validatorsMock,
+    onSubmit: jest.fn(),
+    onNotify: jest.fn()
+  }
+  const input2ErrorValidatorsMock = () => new Proxy({}, { get: (...a) => a[1] !== 'input2' })
 
+  const Component = ({ input2ShouldFail }) => {
+    form.validators =
+      input2ShouldFail ?
+        input2ErrorValidatorsMock :
+        validatorsMock
 
-  // ---------------- TODO: add expects
-  const onFinished = jest.fn()
-  const submitMock = jest.fn(({ finish }) => {
-    finish()
-  })
-  // -----------------
-
-  const input1Spy = jest.fn()
-  const input2Spy = jest.fn()
-
-  const onNotify = jest.fn()
-
-  const Component = ({ input2Result = true }) => {
-    const form = useForm({
-      name: 'form',
-      validators: {
-        input1: (...args) => {
-          input1Spy(...args)
-          return true
-        },
-        input2: (...args) => {
-          input2Spy(...args)
-          return input2Result
-        }
-      },
-      submit: submitMock,
-      onNotify,
-      onFinished
-    })
+    const f = useForm(form)
     return (
       <form>
-        <input
-          value={form.fields.input1.value}
-          onChange={form.handleChange}
-        />
-        <input
-          value={form.fields.input2.value}
-          onChange={form.handleChange}
-        />
-        <button type="submit" onClick={form.handleSubmit}>Submit</button>
+        <input {...f.inputs.text('input1')}/>
+        <input {...f.inputs.text('input2')}/>
+        <button {...f.inputs.submit()} >Submit</button>
       </form>
     )
   }
-  const { getByText } = render(<Component/>, { initialState } )
 
-  const submitButton = getByText(/Submit/)
+  fireEvent.click(render(<Component/>).getByText(/Submit/))
 
-  fireEvent.click(submitButton)
-
-  expect(input1Spy).toBeCalledWith(initialState.form)
-  expect(input2Spy).toBeCalledWith(initialState.form)
-  expect(submitMock).toBeCalledWith({
-    name: 'form',
-    fields: initialState.form,
-    finish: expect.any(Function),
-    setLoading: expect.any(Function)
+  expect(form.onSubmit).toBeCalledWith({
+    fields: form.initialState,
+    setLoading: expect.any(Function),
+    notify: expect.any(Function)
   })
 
   jest.resetAllMocks()
 
   cleanup()
 
-  const { getByText: getByText2 } = render(<Component input2Result={false}/>, { initialState } )
+  fireEvent.click(render(<Component input2ShouldFail/>).getByText(/Submit/))
 
-  const submitButton2 = getByText2(/Submit/)
-
-  fireEvent.click(submitButton2)
-
-  expect(onNotify).toBeCalledWith('submitError')
+  expect(form.onNotify).toBeCalledWith('validationErrors', ['input2'])
 })
 
 
 it('checkboxes\' checked prop used as value when form event is passed to handleChange', () => {
-  const initialState = { form: { input: false } }
   const Component = () => {
     const form = useForm({
-      name: 'form',
-      validators: { input: () => true }
+      initialState:  { input: false },
+      validators: validatorsMock,
+      onSubmit: () => null
     })
 
     return (
@@ -323,7 +207,7 @@ it('checkboxes\' checked prop used as value when form event is passed to handleC
     )
   }
 
-  const { getByDisplayValue } = render(<Component/>, { initialState } )
+  const { getByDisplayValue } = render(<Component/>)
 
   const input = getByDisplayValue('false')
 
@@ -337,4 +221,34 @@ it('checkboxes\' checked prop used as value when form event is passed to handleC
 
   expect(getByDisplayValue('true')).toBeInTheDocument()
 
+})
+
+
+it('if onNotify is not defined, throw error ', () => {
+  const App = ({ useFormParams, notifyParam }) => {
+    const form = useForm({
+      initialState: { input: 'initial value' },
+      onSubmit: ({ notify }) => {notify(notifyParam)},
+      validators: validatorsMock,
+      ...useFormParams
+    })
+
+    useEffect(() => {
+      form.handleSubmit()
+    }, [])
+    return null
+  }
+
+  expect(() => render(<App/>)).toThrowError(new Error(errors.onNotify))
+  process.env.NODE_ENV = 'production'
+  expect(() => render(<App/>)).not.toThrowError(new Error(errors.onNotify))
+  process.env.NODE_ENV = 'test'
+
+  expect(() => render(<App notifyParam="INVALID" useFormParams={{ onNotify: jest.fn() }}/>))
+    .toThrowError(new Error(errors.onNotifyWrongParam))
+
+  const onNotify = jest.fn()
+  const notifyParam = 'submitSuccess'
+  render(<App notifyParam={notifyParam} useFormParams={{ onNotify }}/>)
+  expect(onNotify).toBeCalledWith(notifyParam)
 })

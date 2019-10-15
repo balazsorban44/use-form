@@ -4,19 +4,16 @@ import { render } from '@testing-library/react'
 import { FormProvider } from './FormContext'
 
 
-beforeEach(() => {
-  jest.spyOn(console, 'error').mockImplementation(() => {})
-  jest.spyOn(console, 'warn').mockImplementation(() => {})
-})
+import './__tests__/utils/console.mock'
 
-afterEach(() => {
-  console.error.mockRestore()
-  console.warn.mockRestore()
-})
-
-const customRender = (ui, { initialState, ...options } = {}) => render(ui, {
+const customRender = (ui, { initialStates, validators, onSubmit, onNotify, ...options } = {}) => render(ui, {
   wrapper: ({ children }) =>
-    <FormProvider initialState={initialState}>
+    <FormProvider
+      initialStates={initialStates}
+      validators={validators}
+      onSubmit={onSubmit}
+      onNotify={onNotify}
+    >
       {children}
     </FormProvider>
   , ...options

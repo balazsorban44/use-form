@@ -1,153 +1,241 @@
-import Validators from "./validate"
+import * as React from "react"
+import { Validators } from "./Validators"
+import { FieldValues, FieldValuesAndErrors } from "./FormData"
+import { NotifyCallback, SubmitNotificationType } from "./Notification"
+import { InputPropGenerators } from "./InputPropGenerator"
 
 
-export interface Fields {
-  [fieldKey: string]: any
-}
-
-/** Hook to set up a form. */
-declare function useForm({
-  name, validators, submit,
-  onFinished, onNotify, context,
-  validations, validatorObject
-}: UseFormParams) : UseForm
-
-interface UseFormParams {
+export type SubmitCallback<N, F, T = any> = (submitParams: {
+  name?: N
+  /** Validated field values */
+  fields: F
   /**
-   * Determine which form should we hook into in the Forms Context.
-   * This makes it possible to handle multiple forms.
-   * (Each form should have their own unique names.)
-   */
-  name: string
-  /**
-   * An object containing validator functions.
-   * Can be used to test interdependent fields.
-   * It should at least contain a validator function
-   * for each form field. The key of the validator function is
-   * the same as the form field's that it is testing.
-   * (eg.: fields.email -> validators.email)
+   * Controls the value of `useForm().loading`.
    *
-   * A validator function returns `true`
-   * if the field(s) it is testing are valid.
-   * @note You can also pass the validators to the
-   * FormProvider.
+   * Eg.: set to `true`, when performing an async task,
+   * and to `false` when finished.
    */
-  validators?: Validators
-  /** Function called to submit the form. */
-  submit: SubmitFunction
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>
+  /** Notify the user about the state of submitting. */
+  notify: NotifyCallback<F, SubmitNotificationType>
+}) => T
+
+/**
+ * Set up a form, or hook into one deifned in `FormProvider`.
+ */
+declare function useForm<
+  N extends string,
+  F extends FieldValues,
+  V extends Validators<F>,
+  S extends SubmitCallback<N, F>
+>(useFormParams: {
   /**
-   * An optional callback function,
-   * invoked when a submission has been successfully submitted.
+   * Providing a name gives you access to
+   * one of your forms defined in `FormProvider`.
+   * If you leave it blank, you must provide
+   * `initialState`, `validators`, `onChange` and `onSubmit` here.
+   *
+   * @note The name is also returned in `onSubmit` for convenience.
+   *
+   * @example
+   * const initialStates = { profile: { age: 24 } }
+   *
+   * <FormProvider initialStates={initialStates}>
+   *
+   *  //... somewhere in a component down the tree
+   *  const form = useForm({name: "profile"})
+   *  console.log(form.fields.age.value) // 24
+   *
+   * </FormProvider>
    */
-  onFinished?: Function
-  /** Invoked if something happened that the user should be informed about. */
-  onNotify?: OnNotifyCallback
+  name: N
   /**
-   * Context is used internally. You set it up with `FormProvider`.
-   * However, if you already have one you like to use for forms,
-   * you can pass it here.
-   * 
-   * For implementation details follow this link:
-   * @see https://github.com/balazsorban44/use-form#usage
+   * An object that defines the **shape** of the form
+   * with some initial values.
+   * Every field defined in `initialState` must have
+   * a corresponding validator in `validators`.
+   *
+   * @note You can pass multiple `initialState` objects
+   * to `FormProvider`.
    */
-  context?: React.Context<any>
-  /** @deprecated Not needed anymore. */
-  validations?: string[]
-  /** @deprecated Plase use `validators` instead. */
-  validatorObject: Validators
+  initialState?: F
+  /**
+   * A function that returns an object of validators.
+   * Each returned property is a validator for either
+   * a field value, or they can be more complex and
+   * validate the correlation between field values.
+   *
+   * @note
+   * All the fields defined in `initialState`
+   * must have a validator.
+   * The validator's property name
+   * must match the fields's property name.
+   *
+   * @note You can pass multiple `validators` to `FormProvider`.
+   *
+   * @example
+   * // For a more understandable example, we use date-fns's
+   * // isAfter() and differenceInDays(), but it is not mandatory.
+   * import {isAfter, differenceInDays} from "date-fns"
+   *
+   * const App = () => {
+   *    const form = useForm({
+   *      initialState: { departure: "2019-09-25", arrival: "2019-09-26" },
+   *      validators: fields => {
+   *        const now = Date.now()
+   *        const tomorrow = addDays(now, 1)
+   *        return ({
+   *          arrival: isAfter(fields.arrival, now),
+   *          departure: isAfter(fields.departure, now),
+   *          minOneNight: differenceInDays(fields.departure, fields.arrival) >= 1
+   *        })
+   *      }
+   *    })
+   *
+   *    const value = form.fields.departure.value
+   *    return (
+   *      <input
+   *        name="departure"
+   *        value={value}
+   *        onChange={e => form.handleChange(e, ["departure", "minOneNight"])}
+   *      />
+   *    )
+   * }
+   */
+  validators?: V
+  /** Invoked when submitting the form. */
+  onSubmit?: S
+  /**
+   * Invoked when the user should be notified.
+   * (Eg.: Invalid input, submit error or submit success)
+   */
+  onNotify?: NotifyCallback<F>
+}) : UseForm<N, F, V, keyof ReturnType<V>, S>
+
+export interface ChangeHandler<F, V> {
+  (
+  /**
+   * An object. The property names must correspond
+   * to one of the fields in `initialState`.
+   */
+  fields: Partial<F>,
+  /**
+   * When field values change, they are validated
+   * automatically. By default, only validations with
+   * corresponding names are run, but you can override
+   * which validations to run here.
+   */
+  validations?: Array<V>
+  ): void;
+  (
+  /**
+   * event.target.{name, value, type, checked} are used
+   * to infer the intended change.
+   */
+  event: React.FormEvent,
+  /**
+   * When field values change, they are validated
+   * automatically. By default, only validations with
+   * corresponding names are run, but you can override
+   * which validations to run here.
+   */
+  validations: Array<V>
+  ): void;
 }
 
-
-interface UseForm {
+export interface UseForm<
+  N, F, V, KV,
+  OnSubmitCallback
+> {
+  /** Name of the form */
+  name: N
   /**
-   * All of the form field values.
-   * Also contains information about
-   * invalid values.
+   * An object containing all the fields' values and
+   * if they are valid.
    */
-  fields: FieldValuesAndErrors
-  /** For handling field changes, with field validation. */
-  handleChange(
-    /** Object of fields that has changed. */
-    fields: Fields,
-    /**
-     * Optional list of validations to execute
-     * with the new field value(s).
-     * The strings must correspond to
-     * one of the validator in the validators object.
-     */
-    validations?: string[]
-  ): any
-  handleChange (
-    /** Form event */
-    event: React.FormEvent,
-    /**
-      * Optional list of validations to execute
-      * with the new field value(s).
-      * The strings must correspond to
-      * one of the validator in the validators object.
-      */
-    validations?: string[]
-  ): any
+  fields: FieldValuesAndErrors<F>
   /**
-   * Simple submit function infused with full form validation,
-   * that fails if something is invalid or broken.
+   * `true` if any of the fields contains an error.
+   * To determine the error status of each fields individually,
+   * have a look at the `fields`
    */
-  handleSubmit: React.FormEventHandler
+  hasErros: boolean
+  /** Call it to respond to input changes. */
+  handleChange: ChangeHandler<F, KV>
+  /**
+   * Invokes `onSubmit`. Before that, it runs all field
+   * validations, and if any of them fails, a notification
+   * is emitted with type `validationErrors` and a list of
+   * failed validations.
+   *
+   * @note If an event is passed as an argument, preventdefault()
+   * is called automatically.
+   */
+  handleSubmit: (event?: React.FormEvent) => ReturnType<OnSubmitCallback>
   /**
    * Tells if there is some async operation running in the form,
    * like sending data to server. Can be used to for example disable
    * the UI while something happens that we should wait for.
    */
   loading: boolean
-}
-
-interface FieldsMetadata {
   /**
-   * If any of the fields did not pass validation,
-   * this is set to `true`.
-   */
-  hasErrors: boolean
+   * A convinient way to connect input fields to certain values
+   * in the form.
+   * Instead of using `handleChange` and define
+   * `name`, `id` `type` and `value` attributes individually 
+   * on each input elements,
+   * you can use `inputs` to spread all the necessary props.
+   * ([For more, see the docs](https://github.com/balazsorban44/use-form/wiki#inputs))
+   * 
+   * @example
+   * const App = () => {
+   *   const form = useForm({
+   *     initialState: {
+   *       name: "John Doe",
+   *       birthday: "1990-06-12T19:30"
+   *     }
+   *     //... validators, onSubmit
+   *   })
+   * 
+   *   return (
+   *     <form>
+   *       // This:
+   *       <input {...form.inputs.text('name')}/>
+   *       // is equivalent to this:
+   *       <input
+   *         id="name"
+   *         name="name"
+   *         onChange={form.handleChange}
+   *         type="text"
+   *         value={form.fields.name.value}
+   *       />
+   *
+   *      // And this:
+   *       <input {...form.inputs.datetimeLocal('birthday')}/>
+   *      // to this:
+   *       <input
+   *         id="birthday"
+   *         name="birthday"
+   *         onChange={form.handleChange}
+   *         type="datetime-local"
+   *         value={form.fields.birthday.value}
+   *       />
+   *     </form>
+   *   )
+   * }
+   * 
+   * 
+   * */
+  inputs: InputPropGenerators<F>,
+  validators: V
 }
-
-
-interface FieldValueAndError {
-  /** The field's value. */
-  value: any
-  /** `true` if the field value is invalid. */
-  error?: boolean
-}
-
-interface FieldValuesAndErrors {
-  /** Contains information about the fields. */
-  metadata: FieldsMetadata
-  [fieldKey: string]: FieldValueAndError
-}
-
-type SubmitFunction = ({fields, setLoading, finish} : SubmitFunctionParams) => Promise<boolean>
-
-interface SubmitFunctionParams {
-  /**
-   * The fully validated form fields,
-   * ready to be sent to the database.
-   */
-  fields: Fields
-  /** Control loading state. */
-  setLoading: (isLoading: boolean) => Function
-  /**
-   * Call it in the successful branch of your `submit` function.
-   * It will try to invoke `onNotify('submitSuccess')`
-   * and `onFinished` if was defined.
-   */
-  finish: Function
-}
-
-
-type OnNotifyCallback = (
-  /** Type of notification */
-  type: 'validationError' | 'submitError' | 'submitSuccess',
-  /** If `type` is validationError, than key defines which validation failed. */
-  fieldKey?: string
-) => void
-
 
 export default useForm
+
+
+
+
+
+
+
+

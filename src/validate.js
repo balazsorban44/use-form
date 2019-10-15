@@ -1,18 +1,13 @@
 export default function validate({
   fields,
   validators,
-  validations = [],
-  form = {}
+  validations,
+  form = {},
+  submitting = false
 }) {
-  return ([...Object.keys(fields), ...validations])
-    .reduce((acc, field) => {
-      const error = !validators[field]({ ...form, ...fields })
-
-      if (field in fields) acc[field] = error
-
-      // if this is a custom validation, set error on the field that used it
-      else Object.keys(fields).forEach(field => {acc[field] = error})
-
-      return acc
-    }, {})
+  return (validations || Object.keys(fields))
+    .reduce((acc, field) => ({
+      ...acc,
+      [field]: !validators({ ...form, ...fields }, submitting)[field]
+    }), {})
 }

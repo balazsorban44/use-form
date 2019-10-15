@@ -1,6 +1,11 @@
 {
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended"
+  ],
   "plugins": [
-    "react-hooks"
+    "react-hooks",
+    "react"
   ],
   "parser": "babel-eslint",
   "parserOptions": {
@@ -16,6 +21,7 @@
     "block-spacing":["warn", "never"],
     "semi": [2, "never"],
     "no-trailing-spaces":"error",
+    "no-undef": "error",
     "space-unary-ops":"error",
     "no-mixed-spaces-and-tabs":"error",
     "indent": ["error", 2],
@@ -34,7 +40,12 @@
     "prefer-const":"error",
     "array-bracket-newline":"error",
     "lines-between-class-members":"error",
-    "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": "warn"
+    "react/prop-types": "off"
+  },
+  "env": {
+    "node": true,
+    "jest": true,
+    "es6": true,
+    "browser": true
   }
 }

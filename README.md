@@ -20,11 +20,6 @@
 
 ---
 
-> ⚠ WARNING! This is still in development! ⚠
-
-> I am new to many things here... semantic-release, npm publishing and TypeScript is all the stuff I haven't tried before, so please excuse me for the "messy" start. I am hoping to keep everything clean from now on...
-The documentation is still missing, and there are some rough edges on the inside, so please use with caution! Other than that, please enjoy! ✨💖🚀
-
 ## Table of Contents
 
 - [Installation](#installation)
@@ -82,6 +77,8 @@ const App = () => {
   return (
     <form onSubmit={form.handleSubmit}>
 
+      {/* With current (2.x) API */}
+
       <label htmlFor="arrival">
         { form.fields.arrival.error ? "Invalid" : "" } arrival
       </label>
@@ -102,12 +99,25 @@ const App = () => {
         onChange={e => form.handleChange(e, ["minOneNight"])}
       />
 
+      {/* With new API (available from 3.0) */}
+      
+      <label htmlFor="departure">
+        { form.errors.departure ? "Invalid" : "" } departure
+      </label>
+      <input
+        { ...form.inputs.date("departure")
+        onChange={e => form.handleChange(e, ["minOneNight"])}
+      />
+
+      <label htmlFor="email">{ form.errors.email ? "Invalid" : "" } email</label>
+      <input { ...form.inputs.email("email") }/>
+
     </form>
   )
 }
 
 ReactDOM.render(
-  <FormProvider initialState={{
+  <FormProvider initialStates={{
     form: {
       arrival: TODAY,
       departure: addDays(TODAY, 1)

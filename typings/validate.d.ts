@@ -1,34 +1,22 @@
-import { Fields } from "./useForm"
+import {Validators, Errors } from "./Validators"
+import { FieldValues } from "./FormData"
+
+export interface ValidateParams<F> {
+  fields: Partial<F>
+  validators: Validators<F>
+  validations?: string[]
+  form?: F,
+  submitting?: Boolean
+}
 
 /**
  * Validates fields by given validation keys.
  * Those keys must be present in the provided
  * `validators`. Returns the errors.
  */
-declare function validate(params: ValidateParams) : Errors
+declare function validate<
+  F extends FieldValues,
+  V extends ValidateParams<F>
+>(validateParams: V) : Errors<V["fields"]>
 
-interface ValidateParams {
-  fields: Fields
-  validators: Validators
-  validations?: string[]
-  form?: Fields
-}
-
-
-type ValidatorFunction =
-/**
- * The parameter is an object, containing all the form's values.
- * It can be used to validate fields dependent on other fields,
- * or custom conditions, but should focus on validating the field
- * with the same fieldKey.
- * Should return `true` if valid.
- */
-(fields: Fields) => boolean
-
-interface Errors {
-  [fieldKey: string]: boolean
-}
-
-export default interface Validators {
-  [fieldKey: string]: ValidatorFunction
-}
+export default validate

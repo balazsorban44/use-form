@@ -1,9 +1,8 @@
 import useForm from './useForm'
-import FormContext, { FormProvider } from './FormContext'
-
-export default useForm
+import { FormProvider, getForms } from './FormContext'
 
 export {
-  FormContext,
+  useForm as default,
+  getForms,
   FormProvider
 }
