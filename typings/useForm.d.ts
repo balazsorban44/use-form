@@ -159,7 +159,7 @@ export interface UseForm<
    * To determine the error status of each fields individually,
    * have a look at the `fields`
    */
-  hasErros: boolean
+  hasErrors: boolean
   /** Call it to respond to input changes. */
   handleChange: ChangeHandler<F, KV>
   /**
