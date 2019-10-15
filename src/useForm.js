@@ -23,6 +23,7 @@ export default function useForm ({ name, initialState, validators, onSubmit, onN
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState({})
   const fields = concatFieldsAndErrors(form, errors)
+  const hasErrors = Object.values(errors).some(e => e)
 
 
   const handleChange = (...args) =>
@@ -36,12 +37,15 @@ export default function useForm ({ name, initialState, validators, onSubmit, onN
   return ({
     name,
     fields,
+    hasErrors,
 
     handleChange,
 
     loading,
     handleSubmit,
 
-    inputs
+    inputs,
+
+    validators
   })
 }

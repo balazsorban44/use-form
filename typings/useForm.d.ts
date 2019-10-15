@@ -110,7 +110,7 @@ declare function useForm<
    * (Eg.: Invalid input, submit error or submit success)
    */
   onNotify?: NotifyCallback<F>
-}) : UseForm<N, F, keyof ReturnType<V>, S>
+}) : UseForm<N, F, V, keyof ReturnType<V>, S>
 
 export interface ChangeHandler<F, V> {
   (
@@ -144,7 +144,7 @@ export interface ChangeHandler<F, V> {
 }
 
 export interface UseForm<
-  N, F, V,
+  N, F, V, KV,
   OnSubmitCallback
 > {
   /** Name of the form */
@@ -154,8 +154,14 @@ export interface UseForm<
    * if they are valid.
    */
   fields: FieldValuesAndErrors<F>
+  /**
+   * `true` if any of the fields contains an error.
+   * To determine the error status of each fields individually,
+   * have a look at the `fields`
+   */
+  hasErros: boolean
   /** Call it to respond to input changes. */
-  handleChange: ChangeHandler<F, V>
+  handleChange: ChangeHandler<F, KV>
   /**
    * Invokes `onSubmit`. Before that, it runs all field
    * validations, and if any of them fails, a notification
@@ -220,7 +226,8 @@ export interface UseForm<
    * 
    * 
    * */
-  inputs: InputPropGenerators<F>
+  inputs: InputPropGenerators<F>,
+  validators: V
 }
 
 export default useForm
