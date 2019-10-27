@@ -349,7 +349,7 @@ function handleChange(fields: object, validations: string[]): void
 ```
 | name        | type              |                                                                                                      description |
 | :---------- | :---------------- | ---------------------------------------------------------------------------------------------------------------: |
-| event       | `React.FormEvent` |                                       Standard event. Using `target.{name|value|checked}` to infer the intention |
+| event       | `React.FormEvent` |                                     Standard event. Using `target.{name\|value\|checked}` to infer the intention |
 | fields      | `object`          |                           Pass a partial `fields` object, if you want to change multiple values at the same time |
 | validations | `string[]`        | Which `validators` you would like to run. If omitted, only validators with the same event/field name will be run |
 
