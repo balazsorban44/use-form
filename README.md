@@ -456,7 +456,7 @@ An object that can be spread on a React input like element.
 
 | name     | type       |                                                                                                                                     description |
 | :------- | :--------- | ----------------------------------------------------------------------------------------------------------------------------------------------: |
-| name     | `string`   |                                                                            The name of a field. Must be one of the properties in [initialState] |
+| name     | `string`   |                                                             The name of a field. Must be one of the properties in [initialState](#initialstate) |
 | id       | `string`   | By default, same as `name`. If input type is `radio`, it is the same as `value`, to avoid problems in radio groups where `id` would be the same |
 | value    | `any`      |                                                                                                                          The value of the field |
 | onChange | `function` |                                                                                                                  See [onChange](#changehandler) |
