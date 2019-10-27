@@ -439,3 +439,5 @@ MIT
 [react-hooks]: https://reactjs.org/blog/2019/02/06/react-v16.8.0.html
 [input-types-mdn]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input
 [codesandbox-example]: https://codesandbox.io/s/another-use-form-hook-2mler
+
+<style>table {width: 100%}</style>
