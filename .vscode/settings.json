@@ -1,4 +1,12 @@
 {
   "javascript.validate.enable": false,
-  "liveServer.settings.multiRootWorkspaceName": "use-form"
+  "liveServer.settings.multiRootWorkspaceName": "use-form",
+  "spellright.language": [
+    "en_US"
+  ],
+  "spellright.documentTypes": [
+    "markdown",
+    "latex",
+    "plaintext"
+  ]
 }

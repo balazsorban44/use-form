@@ -8,7 +8,9 @@
 ---
 
 
-[![Build Status][build-badge]][build] [![Code Coverage][coverage-badge]][coverage] [![version][version-badge]][package] [![downloads][downloads-badge]][npmtrends] [![MIT License][license-badge]][license] [![PRs Welcome][prs-badge]][prs] [![Code of Conduct][coc-badge]][coc] [![Watch on GitHub][github-watch-badge]][github-watch] [![Star on GitHub][github-star-badge]][github-star]
+[![Build Status][build-badge]][build] [![Code Coverage][coverage-badge]][coverage] [![version][version-badge]][package] [![downloads][downloads-badge]][npmtrends] [![MIT License][license-badge]][license] [![PRs Welcome][prs-badge]][prs] [![Code of Conduct][coc-badge]][coc]
+
+[![Watch on GitHub][github-watch-badge]][github-watch] [![Star on GitHub][github-star-badge]][github-star]
 
 ---
 
@@ -22,9 +24,10 @@
     - [UseFormParams](#useformparams)
       - [InitialState](#initialstate)
       - [Validators](#validators)
+        - [Validations](#validations)
       - [SubmitCallback](#submitcallback)
       - [NotifyCallback](#notifycallback)
-    - [UseForm](#useform)
+    - [UseFormReturn](#useformreturn)
       - [FieldValuesAndErrors](#fieldvaluesanderrors)
       - [ChangeHandler](#changehandler)
       - [SubmitHandler](#submithandler)
@@ -51,7 +54,7 @@ npm install --save another-use-form-hook
 
 ## Usage
 
-This hook is intended to give a full solution for handling forms. From interdependent field value validations (meaning if a field value is dependent on other field value), to submitting the form, and providing information about when the UI should be unresponsive (loading of some kind of asnyc-like operation), in addition to notification "hooks" to be able to inform the users the most efficient way.
+This hook is intended to give a full solution for handling forms. From interdependent field value validations (meaning if a field value is dependent on other field value), to submitting the form, and providing information about when the UI should be unresponsive (loading of some kind of async-like operation), in addition to notification "hooks" to be able to inform the users the most efficient way.
 
 To retrieve props for an input field, you have the following options:
  1. Using the `form.inputs.{inputType}('name')` input prop generator function (`inputTypes` is one of [these][input-types-mdn])
@@ -205,36 +208,165 @@ ReactDOM.render(<App />, document.querySelector("#root"));
 
 #### UseFormParams
 
-| name         | type                              |                                                                                                      description |
-| :----------- | :-------------------------------- | ---------------------------------------------------------------------------------------------------------------: |
-| name         | `string`                          | Used toidentify one of the forms in `initialStates` and `validators` in [FormProviderProps](#formproviderprops). |
-| initialState | [InitialState](#initialstate)     |                                                                          The default value of every input field. |
-| validators   | [Validators](#validators)         |                            A function that returns an object to validate every field value at change and submit. |
-| onSubmit     | [SubmitCallback](#submitcallback) |                                              A callback function that is invoked when the user submits the form. |
-| onNotify     | [NotifyCallback](#notifycallback) |          Invoked when a validation error occurs, or can be invoked to notify the user about a successful submit. |
+| name         | type       |                                                          description |
+| :----------- | :--------- | -------------------------------------------------------------------: |
+| name         | `string`   | Refer to one of the forms in [formProviderProps](#formproviderprops) |
+| initialState | `object`   |                                    See [InitialState](#initialstate) |
+| validators   | `function` |                                        See [Validators](#validators) |
+| onSubmit     | `function` |                                See [SubmitCallback](#submitcallback) |
+| onNotify     | `function` |                                See [NotifyCallback](#notifycallback) |
 
 ##### InitialState
+An object containing the default value of every field in a form.
+> Example:
+```js
+useForm({
+  initialState: {
+    email: "",
+    name: "",
+    address: "",
+    age: 0
+  }
+})
+```
+
+If `name` is defined, you can refer to `initialStates.{name}` in [formProviderProps](#formproviderprops).
+
+> Example:
+```jsx
+//...
+<FormProvider 
+  initialStates={{
+    login: {
+      email: "email@example.com",
+      password: ""
+    }
+  }}
+>
+//...
+const form = useForm({name: "login"})
+console.log(form.fields.email.value) // email@example.com
+```
+
 ##### Validators
+This function is invoked before [onChange](#changecallback) and [onSubmit](#submitcallback). The former only runs the validations for the changed fields, while the latter runs it on the whole form. For convenience, it is also returned from `useForm`.
+```ts
+function validators(fields: object, isSubmitting: boolean): Validations
+```
+
+| name        | type      |                                                      description |
+| :---------- | :-------- | ---------------------------------------------------------------: |
+| fields      | `object`  |   An object with the same shape as [initialState](#initialstate) |
+| submitting  | `boolean` | Set to `true`, when called before [handleSubmit](#submithandler) |
+| validations | `object`  |                                  See [Validations](#validations) |
+
+###### Validations
+An object containing `boolean` expressions. Each input field must have at least a corresponding property in this object, but you can define custom ones as well.
+> Example:
+```js
+{
+  email: submitting
+    ? isValidEmail(fields.email)
+    : typeof fields.email === "string"
+}
+```
+You can also look at the [live example](#usage).
+
+
 ##### SubmitCallback
+Invoked when [handleSubmit](#submithandler) is called and there were no validation issues.
+
+```ts
+function onSubmit(onSubmitParams: OnSubmitParams): void
+```
+
+
+| name       | type       |                                                       description |
+| :--------- | :--------- | ----------------------------------------------------------------: |
+| name       | `string`   |                 Same as `name` in [useFormParams](#useformparams) |
+| fields     | `object`   |     Validated fields, same shape as [initialState](#initialstate) |
+| setLoading | `function` | Sets the returned `loading` property of [useForm](#useformreturn) |
+| notify     | `function` |                             See [NotifyCallback](#notifycallback) |
+
 ##### NotifyCallback
+Invoked if there is a validation error when calling `handleChange` or `handleSubmit`. Can be manually triggered on `onSubmit` by calling `notify`.
 
-#### UseForm
+```ts
+type NotifyType = "validationErrors" | "submitError" | "submitSuccess"
+function notify(type: NotifyType, reason: any): void
+```
 
-| name         | type                                          |                                                                                                                description |
-| :----------- | :-------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------: |
-| name         | `string`                                      |                                                                                Same as in [UseFormParams](#useformparams). |
-| fields       | [FieldValuesAndErrors](#fieldvaluesanderrors) |                                                                                   Validated field values and their errors. |
-| hasErrors    | `boolean`                                     |                                                                                                                            |
-| handleChange | [ChangeHandler](#changehandler)               |                                                                                                                            |
-| handleSubmit | [SubmitHandler](#submithandler)               |                                                                                                                            |
-| loading      | `boolean`                                     |                                                                                                                            |
-| inputs       | [InputPropGenerators](#inputpropgenerators)   |                                                                                                                            |
-| validators   | [Validators](#validators)                     | Useful if you defined `validators` in [FormProviderProps](#formproviderprops), and you need the current form's validators. |
+| name   | type     |                                                                                              description |
+| :----- | :------- | -------------------------------------------------------------------------------------------------------: |
+| type   | `string` |                                                                                     Type of notification |
+| reason | `any`    | When type is `validationErrors`, it is a list of field names, Otherwise you set it to whatever you want. |
+
+> Example:
+
+Look at the [live example](#usage).
+
+
+#### UseFormReturn
+
+| name         | type       |                                                                   description |
+| :----------- | :--------- | ----------------------------------------------------------------------------: |
+| name         | `string`   |                                   Same as in [useFormParams](#useformparams). |
+| fields       | `object`   |                             See [FieldValuesAndErrors](#fieldvaluesanderrors) |
+| hasErrors    | `boolean`  | For convenience. `true` if any of the returned fields.{name}.error is `true`. |
+| handleChange | `function` |                                           See [ChangeHandler](#changehandler) |
+| handleSubmit | `function` |                                           See [SubmitHandler](#submithandler) |
+| loading      | `boolean`  |                     Controlled by `setLoading` in [onSubmit](#submitcallback) |
+| inputs       | `object`   |                               See [InputPropGenerators](#inputpropgenerators) |
+| validators   | `function` |                                                 See [Validators](#validators) |
 
 ##### FieldValuesAndErrors
+Validated field values and their errors.
+> Example:
+
+```js
+  const form = useForm({initialState: {
+    email: "email@example.com",
+    age: -2
+  }})
+  console.log(form.fields)
+  // {
+  //  email: {
+  //   value: "email@example.com",
+  //   error: false
+  //  },
+  //  age: {
+  //   value: -2,
+  //   error: truefields
+  //  }
+  // }
+  console.log(form.hasErrors) // true
+```
 ##### ChangeHandler
+You can call this two ways. Either pass an event as the first argument, or a partial `fields` object. With the latter, you can change multiple values at the same time. Eg.: resetting the form after submit, or any other reason you might have.
+```ts
+function handleChange(event: React.FormEvent, validations: string[]): void
+function handleChange(fields: object, validations: string[]): void
+```
+| name        | type              |                                                                                                      description |
+| :---------- | :---------------- | ---------------------------------------------------------------------------------------------------------------: |
+| event       | `React.FormEvent` |                                       Standard event. Using `target.{name|value|checked}` to infer the intention |
+| fields      | `object`          |                           Pass a partial `fields` object, if you want to change multiple values at the same time |
+| validations | `string[]`        | Which `validators` you would like to run. If omitted, only validators with the same event/field name will be run |
+
+> Example:
+
+Look at the [live example](#usage).
+
 ##### SubmitHandler
+Call to submit the form. Before [onSubmit](#submitcallback) is invoked, [validators](#validators) is run for every form field. If there were any errors, [notify](#notifycallback) is invoked with `type` being `validationErrors`, and `reason` a list of form field names.
+
+```ts
+function handleSubmit(): void
+```
+
+
 ##### InputPropGenerators
+> TODO
 
 ### FormProvider
 
@@ -244,13 +376,13 @@ ReactDOM.render(<App />, document.querySelector("#root"));
 
 #### FormProviderProps
 
-| name          | type                              |                                                                                                 description |
-| :------------ | :-------------------------------- | ----------------------------------------------------------------------------------------------------------: |
-| initialStates | `{[key: string]: InitialState}`   | `key` is the name of a form, defined in [UseFormParams](#useformparams). See [InitialState](#initialState). |
-| validators    | `{[key: string]: Validators}`     |     `key` is the name of a form, defined in [UseFormParams](#useformparams). See [Validators](#validators). |
-| onSubmit      | [SubmitCallback](#submitcallback) |                                                      Same as `onSubmit` in [UseFormParams](#useformparams). |
-| onNotify      | [NotifyCallback](#notifycallback) |                                                      Same as `onNotify` in [UseFormParams](#useformparams). |
-| children      | `ReactElement`                    |                                                     The element you would like to wrap with `FormProvider`. |
+| name          | type           |                                                                                 description |
+| :------------ | :------------- | ------------------------------------------------------------------------------------------: |
+| initialStates | `object`       | Single place to define all `initialState` for every form. See [InitialState](#initialState) |
+| validators    | `object`       |      Single place to define all `validators` for every form. See  [Validators](#validators) |
+| onSubmit      | `function`     |                                                         Same as [onSubmit](#submitcallback) |
+| onNotify      | `function`     |                                                         Same as [onNotify](#notifycallback) |
+| children      | `ReactElement` |                                      The element you would like to wrap with `FormProvider` |
 
 
 
@@ -260,7 +392,7 @@ ReactDOM.render(<App />, document.querySelector("#root"));
 ```
 
 #### Forms
-It is an object containing all the forms' current values in [FormProvider](#formprovider).
+An object containing all the forms' current values in [FormProvider](#formprovider). Same shape as `initialStates`.
 
 
 ---
