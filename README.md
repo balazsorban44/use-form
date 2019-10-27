@@ -32,6 +32,8 @@
       - [ChangeHandler](#changehandler)
       - [SubmitHandler](#submithandler)
       - [InputPropGenerators](#inputpropgenerators)
+        - [InputTypeOptions](#inputtypeoptions)
+        - [InputPropGeneratorsReturn](#inputpropgeneratorsreturn)
   - [FormProvider](#formprovider)
     - [FormProviderProps](#formproviderprops)
   - [getForms](#getforms)
@@ -342,7 +344,7 @@ Validated field values and their errors.
   console.log(form.hasErrors) // true
 ```
 ##### ChangeHandler
-You can call this two ways. Either pass an event as the first argument, or a partial `fields` object. With the latter, you can change multiple values at the same time. Eg.: resetting the form after submit, or any other reason you might have.
+You can call this two ways. Either pass an event as the first argument, or a partial `fields` object. With the latter, you can change multiple values at the same time. E.g.: resetting the form after submit, or any other reason you might have.
 ```ts
 function handleChange(event: React.FormEvent, validations: string[]): void
 function handleChange(fields: object, validations: string[]): void
@@ -366,7 +368,122 @@ function handleSubmit(): void
 
 
 ##### InputPropGenerators
-> TODO
+
+An object, containing properties with the same name as the [HTML input types][input-types-mdn], with some minor differences. 
+
+For convenience, since `datetime-local` contains a hyphen (-) character, it is also exposed as `datetimeLocal`, to overcome the need of `"` characters, when accessing it.
+I.e.:
+```js
+const form = useForm()
+form.inputs.datetimeLocal == form.inputs["datetime-local"]
+```
+In addition to the standard input types, there is a `select` type also available.
+
+Each property is a function:
+
+```ts
+function inputType(name: string, options: InputTypeOptions): InputPropGeneratorsReturn
+```
+
+| name    | type     |                                                                  description |
+| :------ | :------- | ---------------------------------------------------------------------------: |
+| name    | `string` | The name of a field. Same as the properties of [initialState](#initialstate) |
+| options | `object` |                                    See [InputTypeOptions](#inputtypeoptions) |
+
+> Example:
+
+For examples of all types, you can check [this test suite][input-prop-generator-test-file]
+
+###### InputTypeOptions
+An optional object
+
+| name          | type       |                                                                                                                          description |
+| :------------ | :--------- | -----------------------------------------------------------------------------------------------------------------------------------: |
+| value         | `string`   |                     Usually, when using radio buttons, values are static. (Each button in the same group must have different values) |
+| generateProps | `function` | Provides `name`, `value` and `error` that can be used to generate additional props. Useful, if you want to avoid using `form.fields` |
+
+> Example:
+1. 
+```jsx
+const form = useForm(/*...*/)
+// *click on option-2*
+console.log(form.fields.radio.value) // option-2
+return (
+  <radiogroup>
+    <input {...inputs.radio('radio', { value: 'option-1' })}/>
+    <input {...inputs.radio('radio', { value: 'option-2' })}/>
+    {/*You can do it the "traditional" way also*/}
+    <input
+      {...inputs.radio('radio')} 
+      value='option-3'
+    />
+  </radiogroup>
+)
+```
+2. 
+```jsx
+const form = useForm(/*...*/)
+return(
+  <div>
+    <input
+      {...form.inputs.email("emailField"), {
+        generateProps: ({error}) => ({
+          className: error ? "email-error" : "email",
+        })
+      }}
+    />
+    {/*Tip: if your custom Input component takes an error prop, you can try this: */}
+    <Input {...form.inputs.email("emailField"), {generateProps: _ => _}}/>
+    {/* This will spread error to Input as well.*/}
+
+    {/*Or here is a more complex example for a custom Input component*/}
+    <Input 
+      {...form.inputs.email("emailField"), {
+        generateProps: ({error, name}) => ({
+          error,
+          label: error ? `Invalid ${name}` : name,
+          placeholder: `Type ${name}`
+        })
+      }}
+    />
+  </div>
+)
+```
+
+
+###### InputPropGeneratorsReturn
+An object that can be spread on a React input like element.
+
+| name     | type       |                                                                                                                                     description |
+| :------- | :--------- | ----------------------------------------------------------------------------------------------------------------------------------------------: |
+| name     | `string`   |                                                                            The name of a field. Must be one of the properties in [initialState] |
+| id       | `string`   | By default, same as `name`. If input type is `radio`, it is the same as `value`, to avoid problems in radio groups where `id` would be the same |
+| value    | `any`      |                                                                                                                          The value of the field |
+| onChange | `function` |                                                                                                                  See [onChange](#changehandler) |
+| checked  | `boolean`  |                                                                                          If input type is `checkbox`, it is the same as `value` |
+| onClick  | `function` |                                                                                     If input type is `submit`, it is [onSubmit](#submithandler) |
+
+> Example:
+
+```jsx
+const form = useForm(/*...*/)
+
+return (
+  <div>
+    <label htmlFor="emailField">E-mail</label>
+
+    <input {...form.inputs.email("emailField")}/>
+    {/* This is the same as */}
+    <input
+      name="emailField"
+      id="emailField"
+      type="email"
+      onChange={form.handleChange}
+      value={form.fields.emailField.value}
+    />
+  </div>
+)
+```
 
 ### FormProvider
 
@@ -439,3 +556,4 @@ MIT
 [react-hooks]: https://reactjs.org/blog/2019/02/06/react-v16.8.0.html
 [input-types-mdn]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input
 [codesandbox-example]: https://codesandbox.io/s/another-use-form-hook-2mler
+[input-prop-generator-test-file]: https://github.com/balazsorban44/use-form/blob/master/src/__tests__/useForm-with-input-prop-generator.test.js
