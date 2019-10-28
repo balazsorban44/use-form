@@ -8,7 +8,7 @@
 ---
 
 
-[![Build Status][build-badge]][build] [![Code Coverage][coverage-badge]][coverage] [![version][version-badge]][package] [![downloads][downloads-badge]][npmtrends] [![MIT License][license-badge]][license] [![PRs Welcome][prs-badge]][prs] [![Code of Conduct][coc-badge]][coc]
+[![Build Status][build-badge]][build] [![Code Coverage][coverage-badge]][coverage] [![version][version-badge]][package] [![downloads][downloads-badge]][npmtrends] [![Total downloads][total-downloads]][total-downloads] [![MIT License][license-badge]][license] [![PRs Welcome][prs-badge]][prs] [![Code of Conduct][coc-badge]][coc]
 
 [![Watch on GitHub][github-watch-badge]][github-watch] [![Star on GitHub][github-star-badge]][github-star]
 
@@ -557,3 +557,4 @@ MIT
 [input-types-mdn]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input
 [codesandbox-example]: https://codesandbox.io/s/another-use-form-hook-2mler
 [input-prop-generator-test-file]: https://github.com/balazsorban44/use-form/blob/master/src/__tests__/useForm-with-input-prop-generator.test.js
+[total-downloads]: https://img.shields.io/npm/dt/another-use-form-hook.svg?label=total%20downloads&style=flat-square
