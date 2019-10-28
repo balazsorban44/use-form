@@ -426,25 +426,25 @@ const form = useForm(/*...*/)
 return(
   <div>
     <input
-      {...form.inputs.email("emailField"), {
+      {...form.inputs.email("emailField", {
         generateProps: ({error}) => ({
           className: error ? "email-error" : "email",
         })
-      }}
+      })}
     />
     {/*Tip: if your custom Input component takes an error prop, you can try this: */}
-    <Input {...form.inputs.email("emailField"), {generateProps: _ => _}}/>
+    <Input {...form.inputs.email("emailField", {generateProps: _ => _})}/>
     {/* This will spread error to Input as well.*/}
 
     {/*Or here is a more complex example for a custom Input component*/}
     <Input 
-      {...form.inputs.email("emailField"), {
+      {...form.inputs.email("emailField", {
         generateProps: ({error, name}) => ({
           error,
           label: error ? `Invalid ${name}` : name,
           placeholder: `Type ${name}`
         })
-      }}
+      })}
     />
   </div>
 )
