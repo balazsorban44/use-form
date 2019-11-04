@@ -15,7 +15,7 @@ const inputTypes = [
 
 
 const inputPropsGenerator = ({ type, fields, handleChange, handleSubmit }) =>
-  (name, { value, generateProps } = {}) => {
+  (name, { value, generateProps, formName } = {}) => {
     const field = fields[name]
 
     let props = {
@@ -46,9 +46,12 @@ const inputPropsGenerator = ({ type, fields, handleChange, handleSubmit }) =>
       props = {
         value: name,
         children: name,
-        type: 'submit',
-        onClick: handleSubmit
+        type: 'submit'
       }
+      if (formName)
+        props.onClick = e => handleSubmit(e, { formName })
+      else
+        props.onClick = handleSubmit
       break
     default:
       break
