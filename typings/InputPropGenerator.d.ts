@@ -44,6 +44,8 @@ type InputPropGenerator<
   options?: {
     value: T extends "checkbox" | "select" ? string : never
     generateProps: G
+    /** Override the name of the form being submitted. */
+    formName: T extends "submit" ? string : never
   }
 ) => GeneratedProps<T, F, N> | ReturnType<G>
 

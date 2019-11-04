@@ -252,3 +252,26 @@ it('if onNotify is not defined, throw error ', () => {
   render(<App notifyParam={notifyParam} useFormParams={{ onNotify }}/>)
   expect(onNotify).toBeCalledWith(notifyParam)
 })
+
+
+it('should propagate name from event target', () => {
+  const onSubmit = jest.fn()
+  const initialState = { input: '' }
+  const formName = 'formName'
+
+  const App = ({ name }) => {
+    const form = useForm({ name, initialState, validators: validatorsMock, onSubmit })
+    return (
+      <form>
+        <label htmlFor="input">Input</label>
+        <input {...form.inputs.text('input')}/>
+        <button {...form.inputs.submit('Submit', { formName })}/>
+      </form>
+    )
+  }
+
+  const { getByText } = render(<App/>)
+  fireEvent.click(getByText(/submit/i))
+  expect(onSubmit).toBeCalledWith(expect.objectContaining({ name: formName }))
+
+})

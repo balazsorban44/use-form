@@ -20,6 +20,10 @@ export type SubmitCallback<N, F, T = any> = (submitParams: {
   notify: NotifyCallback<F, SubmitNotificationType>
 }) => T
 
+export interface SubmitHandlerOptions {
+  /** Overrides the name of the form being submitted in `onSubmit`. */
+  formName: string
+}
 /**
  * Set up a form, or hook into one deifned in `FormProvider`.
  */
@@ -145,7 +149,7 @@ export interface ChangeHandler<F, V> {
 
 export interface UseForm<
   N, F, V, KV,
-  OnSubmitCallback
+  SubmitCallback
 > {
   /** Name of the form */
   name: N
@@ -171,7 +175,7 @@ export interface UseForm<
    * @note If an event is passed as an argument, preventdefault()
    * is called automatically.
    */
-  handleSubmit: (event?: React.FormEvent) => ReturnType<OnSubmitCallback>
+  handleSubmit: (event?: React.FormEvent, options: SubmitHandlerOptions) => ReturnType<SubmitCallback>
   /**
    * Tells if there is some async operation running in the form,
    * like sending data to server. Can be used to for example disable

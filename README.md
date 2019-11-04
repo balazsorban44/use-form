@@ -401,6 +401,7 @@ An optional object
 | :------------ | :--------- | -----------------------------------------------------------------------------------------------------------------------------------: |
 | value         | `string`   |                     Usually, when using radio buttons, values are static. (Each button in the same group must have different values) |
 | generateProps | `function` | Provides `name`, `value` and `error` that can be used to generate additional props. Useful, if you want to avoid using `form.fields` |
+| formName      | `string`   |                                      If the input type is `submit`, it can be used to override the name of the form being submitted. |
 
 > Example:
 1. 

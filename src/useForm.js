@@ -29,8 +29,8 @@ export default function useForm ({ name, initialState, validators, onSubmit, onN
   const handleChange = (...args) =>
     changeHandler({ dispatch, setErrors, form, name, onNotify, validators, args })
 
-  const handleSubmit = e =>
-    submitHandler({ e, name, form, submit: onSubmit, setLoading, onNotify, setErrors, validators })
+  const handleSubmit = (e, options) =>
+    submitHandler({ e, options, name, form, submit: onSubmit, setLoading, onNotify, setErrors, validators })
 
   const inputs = inputPropGenerators({ fields, handleChange, handleSubmit })
 
