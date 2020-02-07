@@ -173,7 +173,6 @@ describe('handleSubmit validates', () => {
       setLoading: expect.any(Function),
       notify: expect.any(Function)
     })
-
   })
 
   it('validation should fail', () => {
@@ -187,6 +186,17 @@ describe('handleSubmit validates', () => {
     expect(form.onNotify).toBeCalledWith('validationErrors', ['input2'])
   })
 
+  it('when calculating validations from validators, should be able to access fields ', () => {
+    const validators = jest.fn((fields, submitting) => ({
+      input1: typeof fields.input1 === 'string',
+      input2: !submitting
+    }))
+    render(<Component validators={validators}/>)
+    fireEvent.click(screen.getByText(/submit/i))
+    expect(form.onSubmit).not.toBeCalled()
+    expect(validators).toHaveBeenNthCalledWith(1, form.initialState, false)
+    expect(form.onNotify).toBeCalledWith('validationErrors', ['input2'])
+  })
 })
 
 
