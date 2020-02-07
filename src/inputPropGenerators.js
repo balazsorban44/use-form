@@ -34,6 +34,7 @@ const inputPropsGenerator = ({ type, fields, handleChange, handleSubmit }) =>
       props.type = 'datetime-local'
       break
     case 'radio':
+      props.checked = field.value === value
       props.id = value
       break
     case 'checkbox':
