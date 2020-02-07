@@ -25,16 +25,14 @@ export default function useForm ({ name, initialState, validators, onSubmit, onN
   const fields = concatFieldsAndErrors(form, errors)
   const hasErrors = Object.values(errors).some(e => e)
 
-  const [customValidations, extendValidations] = useState(Object.keys(validators))
-
   const handleChange = (...args) =>
     changeHandler({
-      dispatch, setErrors, form, name, onNotify, validators, args, extendValidations
+      dispatch, setErrors, form, name, onNotify, validators, args
     })
 
   const handleSubmit = (e, options) =>
     submitHandler({
-      e, options, name, form, submit: onSubmit, setLoading, onNotify, setErrors, validators, customValidations
+      e, options, name, form, submit: onSubmit, setLoading, onNotify, setErrors, validators
     })
 
   const inputs = inputPropGenerators({ fields, handleChange, handleSubmit })

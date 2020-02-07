@@ -7,12 +7,13 @@ import { errors as devErrors } from './handleDevErrors'
  * before it is being sent.
  */
 export default function submitHandler({
-  e, options, name, form, submit, setLoading, setErrors, onNotify, validators, customValidations
+  e, options, name, form, submit, setLoading, setErrors, onNotify, validators
 }) {
   e?.preventDefault?.()
   name = options?.formName || name
 
-  const validations = [...Object.keys(form), ...customValidations]
+
+  const validations = Object.keys(validators({}))
   const errors = validate({ fields: form, validators, submitting: true, validations })
   setErrors(e => ({ ...e, ...errors }))
 

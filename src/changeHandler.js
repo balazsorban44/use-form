@@ -7,7 +7,7 @@ import { errors as devErrors } from './handleDevErrors'
  * merged with the form.
  */
 export default function changeHandler({
-  dispatch, setErrors, form, name, onNotify, validators, args, extendValidations
+  dispatch, setErrors, form, name, onNotify, validators, args
 }) {
 
   let fields = {}
@@ -31,7 +31,8 @@ export default function changeHandler({
   }
   if (Array.isArray(args[1])) {
     validations = args[1]
-    extendValidations(args[1])
+  } else {
+    validations = Object.keys(fields)
   }
 
 
