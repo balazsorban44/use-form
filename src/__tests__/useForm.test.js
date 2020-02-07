@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import { render, screen } from '@testing-library/react'
-import { render as customRender, fireEvent, cleanup } from '../test-utils'
+import { render as customRender, fireEvent } from '../test-utils'
 import useForm from '../useForm'
 import { errors } from '../handleDevErrors'
 import validatorsMock from './utils/validators.mock'
@@ -8,7 +8,7 @@ import validatorsMock from './utils/validators.mock'
 it('invalid validator throws error', () => {
 
   const Component = ({ validators }) => {
-    useForm({ name: 'form', validators })
+    useForm({ name: 'form', validators, onSubmit: jest.fn() }).handleSubmit()
     return null
   }
 
@@ -16,13 +16,13 @@ it('invalid validator throws error', () => {
     <Component/>,
     { initialStates: { form: { input: '' } } }
   ))
-    .toThrow(errors.validators())
+    .toThrow(errors.validators(undefined))
 
   expect(() => customRender(
     <Component validators={() => ({ input: null })} />,
     { initialStates: { form: { input: '' } } }
   ))
-    .toThrow(errors.validator('input'))
+    .toThrow(errors.invalidValidators(['input']))
 
 })
 
