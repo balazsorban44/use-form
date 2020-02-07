@@ -2,6 +2,7 @@ import React from 'react'
 import { render, fireEvent } from '../test-utils'
 import validatorsMock from './utils/validators.mock'
 import useForm from '../useForm'
+import { screen } from '@testing-library/react'
 
 const initialStates = {
   form:  {
@@ -32,7 +33,7 @@ const providerProps = {
 
 describe('v3 input props', () => {
   const App = () => {
-    const { fields, inputs, loading } = useForm({ name: 'form', validators: validatorsMock })
+    const { fields, inputs } = useForm({ name: 'form', validators: validatorsMock })
 
     return (
       <form>
@@ -61,11 +62,11 @@ describe('v3 input props', () => {
         <fieldset>
           <legend>Selects:</legend>
 
-          <radiogroup>
-            <input {...inputs.radio('radio', { value: 'option-1' })}/>
-            <input {...inputs.radio('radio', { value: 'option-2' })}/>
-            <p>{fields.radio.value}</p>
-          </radiogroup>
+          <label htmlFor="option-1">Option 1</label>
+          <input {...inputs.radio('radio', { value: 'option-1' })}/>
+          <label htmlFor="option-2">Option 2</label>
+          <input {...inputs.radio('radio', { value: 'option-2' })}/>
+          <p>{fields.radio.value}</p>
 
           {/* REVIEW: */}
           <label htmlFor="checkbox">checkbox</label>
@@ -109,63 +110,63 @@ describe('v3 input props', () => {
 
   const dateTypes = ['date', 'time', 'week', 'month', 'datetime-local']
   it('Dates: date input', () => {
-    const { getByDisplayValue, debug } = render(<App/>, providerProps)
+    render(<App/>, providerProps)
 
     const value = new Date().toISOString().slice(0, 10)
 
     fireEvent.change(
-      getByDisplayValue(initialStates.form.date),
+      screen.getByDisplayValue(initialStates.form.date),
       { target: { name: 'date', value } }
     )
-    expect(getByDisplayValue(value)).toBeInTheDocument()
+    expect(screen.getByDisplayValue(value)).toBeInTheDocument()
   })
 
   it('Dates: datetime-local input', () => {
-    const { getByDisplayValue, debug } = render(<App/>, providerProps)
+    render(<App/>, providerProps)
 
     const value = new Date().toISOString().slice(0, 16)
 
     fireEvent.change(
-      getByDisplayValue(initialStates.form.datetimeLocal),
+      screen.getByDisplayValue(initialStates.form.datetimeLocal),
       { target: { name: 'datetimeLocal', value } }
     )
-    expect(getByDisplayValue(value)).toBeInTheDocument()
+    expect(screen.getByDisplayValue(value)).toBeInTheDocument()
   })
 
   it('Dates: time input', () => {
-    const { getByDisplayValue, debug } = render(<App/>, providerProps)
+    render(<App/>, providerProps)
 
     const value = '14:00'
 
     fireEvent.change(
-      getByDisplayValue(initialStates.form.time),
+      screen.getByDisplayValue(initialStates.form.time),
       { target: { name: 'time', value } }
     )
-    expect(getByDisplayValue(value)).toBeInTheDocument()
+    expect(screen.getByDisplayValue(value)).toBeInTheDocument()
   })
 
   it('Dates: week input', () => {
-    const { getByDisplayValue, debug } = render(<App/>, providerProps)
+    render(<App/>, providerProps)
 
     const value = '2019-W33'
 
     fireEvent.change(
-      getByDisplayValue(initialStates.form.week),
+      screen.getByDisplayValue(initialStates.form.week),
       { target: { name: 'week', value } }
     )
-    expect(getByDisplayValue(value)).toBeInTheDocument()
+    expect(screen.getByDisplayValue(value)).toBeInTheDocument()
   })
 
   it('Dates: month input', () => {
-    const { getByDisplayValue, debug } = render(<App/>, providerProps)
+    render(<App/>, providerProps)
 
     const value = '2019-08'
 
     fireEvent.change(
-      getByDisplayValue(initialStates.form.month),
+      screen.getByDisplayValue(initialStates.form.month),
       { target: { name: 'month', value } }
     )
-    expect(getByDisplayValue(value)).toBeInTheDocument()
+    expect(screen.getByDisplayValue(value)).toBeInTheDocument()
   })
 
 
@@ -201,13 +202,27 @@ describe('v3 input props', () => {
   })
 
   it('Selects: radio input', () => {
-    const { getByDisplayValue, queryByText } = render(<App/>, providerProps)
-    expect(queryByText('option-2')).not.toBeInTheDocument()
-    fireEvent.click(
-      getByDisplayValue('option-2'),
-      { target: { name: 'radio', value: 'option-2' } }
-    )
-    expect(queryByText('option-2')).toBeInTheDocument()
+    render(<App/>, providerProps)
+
+    expect(screen.getByText('option-1')).toBeInTheDocument()
+    expect(screen.queryByText('option-2')).not.toBeInTheDocument()
+
+    const option1 = screen.getByLabelText(/option 1/i)
+    expect(option1).toBeChecked()
+
+    const option2 = screen.getByLabelText(/option 2/i)
+
+    fireEvent.click(option2)
+    expect(option1).not.toBeChecked()
+    expect(option2).toBeChecked()
+    expect(screen.queryByText('option-1')).not.toBeInTheDocument()
+    expect(screen.getByText('option-2')).toBeInTheDocument()
+
+    fireEvent.click(option1)
+    expect(option1).toBeChecked()
+    expect(option2).not.toBeChecked()
+    expect(screen.getByText('option-1')).toBeInTheDocument()
+    expect(screen.queryByText('option-2')).not.toBeInTheDocument()
   })
 
 
