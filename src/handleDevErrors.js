@@ -25,14 +25,12 @@ export const errors = {
     `onSubmit must be a function, but it was ${typeof onSubmit}.`,
     'docs: https://github.com/balazsorban44/use-form/wiki#use-form-onSubmit',
   ].join('\n'),
-
   validators: validators => [
     `validators must be a function, but it was ${typeof validators}.`,
     'docs: https://github.com/balazsorban44/use-form/wiki#use-form-validators',
   ].join('\n'),
-
-  validator: keys => [
-    `The validator(s) for ${keys} in validators are invalid.`,
+  invalidValidators: (keys) => [
+    `The following validator(s) were invalid: ${keys}`,
     'docs: https://github.com/balazsorban44/use-form/wiki#use-form-validators',
   ].join('\n'),
   outsideProvider: name => `useForm with name cannot be used outside a FormProvider (name was ${name})`
@@ -50,16 +48,8 @@ export default function handleDevErrors ({ name, initialState, form, validators,
   if (!form)
     throw new Error(errors.initialState(name))
 
-  if (typeof validators !== 'function') {
+  if (typeof validators !== 'function')
     throw new TypeError(errors.validators(validators))
-
-  } else {
-    const invalidValidators = Object.keys(form).filter(key =>
-      typeof validators(form, false)[key] !== 'boolean'
-    )
-    if (invalidValidators.length)
-      throw new TypeError(errors.validator(invalidValidators))
-  }
 
   if (typeof onSubmit !== 'function')
     throw new TypeError(errors.onSubmit(onSubmit))

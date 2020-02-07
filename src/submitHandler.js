@@ -7,12 +7,22 @@ import { errors as devErrors } from './handleDevErrors'
  * before it is being sent.
  */
 export default function submitHandler({
-  e, options, name, form, submit, setLoading, setErrors, onNotify, validators, customValidations
+  e, options, name, form, submit, setLoading, setErrors, onNotify, validators
 }) {
   e?.preventDefault?.()
   name = options?.formName || name
 
-  const validations = [...Object.keys(form), ...customValidations]
+
+  const validations = Object.keys(validators({}))
+
+  if (process.env.NODE_ENV !== 'production') {
+    const invalidValidators = validations.filter(validation =>
+      typeof validators(form, false)[validation] !== 'boolean'
+    )
+    if (invalidValidators.length)
+      throw new Error(devErrors.invalidValidators(invalidValidators))
+  }
+
   const errors = validate({ fields: form, validators, submitting: true, validations })
   setErrors(e => ({ ...e, ...errors }))
 
