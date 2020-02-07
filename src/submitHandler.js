@@ -13,7 +13,7 @@ export default function submitHandler({
   name = options?.formName || name
 
 
-  const validations = Object.keys(validators({}))
+  const validations = Object.keys(validators(form, false))
 
   if (process.env.NODE_ENV !== 'production') {
     const invalidValidators = validations.filter(validation =>
