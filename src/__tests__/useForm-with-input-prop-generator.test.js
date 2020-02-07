@@ -67,6 +67,8 @@ describe('v3 input props', () => {
             <p>{fields.radio.value}</p>
           </radiogroup>
 
+          {/* REVIEW: */}
+          <label htmlFor="checkbox">checkbox</label>
           <input {...inputs.checkbox('checkbox', 'checkbox-1')}/>
 
           <label htmlFor="select">select</label>
@@ -77,7 +79,6 @@ describe('v3 input props', () => {
         </fieldset>
         <input {...inputs.number('number')}/>
         <input {...inputs.range('range')}/>
-        <label htmlFor="checkbox">checkbox</label>
         <button {...inputs.submit('Submit')}/>
       </form>
     )

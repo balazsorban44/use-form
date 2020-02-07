@@ -14,18 +14,18 @@ it('can\'t use useForm outside FormProvider', () => {
     return null
   }
 
-  expect(() => render(<App/>)).toThrowError(errors.outsideProvider)
+  expect(() => render(<App/>)).toThrowError(errors.outsideProvider('form'))
 
   expect(() => render(
     <FormProvider>
       <App/>
     </FormProvider>
-  )).not.toThrowError(errors.outsideProvider)
+  )).not.toThrowError(errors.outsideProvider('form'))
 
   // Don't throw in production
   const env = process.env.NODE_ENV
   process.env.NODE_ENV = 'production'
-  expect(() => render(<App/>)).not.toThrowError(errors.outsideProvider)
+  expect(() => render(<App/>)).not.toThrowError(errors.outsideProvider('form'))
   process.env.NODE_ENV = env
 
 })

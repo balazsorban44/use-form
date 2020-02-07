@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { render } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import { render as customRender, fireEvent, cleanup } from '../test-utils'
 import useForm from '../useForm'
 import { errors } from '../handleDevErrors'
@@ -143,48 +143,50 @@ it('handleChange validates', () => {
 })
 
 
-// TODO: Simplify
-it('handleSubmit validates', () => {
+describe('handleSubmit validates', () => {
 
   const form = {
     initialState: { input1: 'valid', input2: 'validToo' },
-    validators: validatorsMock,
     onSubmit: jest.fn(),
     onNotify: jest.fn()
   }
-  const input2ErrorValidatorsMock = () => new Proxy({}, { get: (...a) => a[1] !== 'input2' })
 
-  const Component = ({ input2ShouldFail }) => {
-    form.validators =
-      input2ShouldFail ?
-        input2ErrorValidatorsMock :
-        validatorsMock
-
-    const f = useForm(form)
+  const Component = ({ validators = validatorsMock }) => {
+    const { inputs } = useForm({ ...form, validators })
     return (
       <form>
-        <input {...f.inputs.text('input1')}/>
-        <input {...f.inputs.text('input2')}/>
-        <button {...f.inputs.submit()} >Submit</button>
+        <input {...inputs.text('input1')}/>
+        <input {...inputs.text('input2')}/>
+        <button {...inputs.submit('submit')}/>
       </form>
     )
   }
 
-  fireEvent.click(render(<Component/>).getByText(/Submit/))
+  beforeEach(jest.resetAllMocks)
 
-  expect(form.onSubmit).toBeCalledWith({
-    fields: form.initialState,
-    setLoading: expect.any(Function),
-    notify: expect.any(Function)
+  it('validation should not fail', () => {
+    render(<Component />)
+    fireEvent.click(screen.getByText(/submit/i))
+    expect(form.onNotify).not.toBeCalled()
+    expect(form.onSubmit).toBeCalledWith({
+      fields: form.initialState,
+      setLoading: expect.any(Function),
+      notify: expect.any(Function)
+    })
+
   })
 
-  jest.resetAllMocks()
+  it('validation should fail', () => {
+    const input2ErrorValidatorsMock = (_, submitting) => ({
+      input1: true,
+      input2: !submitting
+    })
+    render(<Component validators={input2ErrorValidatorsMock}/>)
+    fireEvent.click(screen.getByText(/submit/i))
+    expect(form.onSubmit).not.toBeCalled()
+    expect(form.onNotify).toBeCalledWith('validationErrors', ['input2'])
+  })
 
-  cleanup()
-
-  fireEvent.click(render(<Component input2ShouldFail/>).getByText(/Submit/))
-
-  expect(form.onNotify).toBeCalledWith('validationErrors', ['input2'])
 })
 
 
@@ -274,4 +276,43 @@ it('should propagate name from event target', () => {
   fireEvent.click(getByText(/submit/i))
   expect(onSubmit).toBeCalledWith(expect.objectContaining({ name: formName }))
 
+})
+
+
+it('should run custom validations on submit', () => {
+  const onSubmit = jest.fn()
+  const onNotify = jest.fn()
+  const initialState = { input: '' }
+
+  const validators = (fields, submitting) => ({
+    custom: !submitting,
+    input: typeof fields.input === 'string'
+  })
+
+  const App = () => {
+    const form = useForm({
+      validators,
+      initialState,
+      onNotify,
+      onSubmit
+    })
+    return (
+      <form>
+        <label htmlFor="input">input</label>
+        <input
+          {...form.inputs.text('input')}
+          onChange={e =>
+            form.handleChange({ input: e.target.value }, ['input', 'custom'])
+          }
+        />
+        <button {...form.inputs.submit('submit')}>submit</button>
+      </form>
+    )
+  }
+
+  render(<App/>)
+  fireEvent.change(screen.getByLabelText(/input/i), { target: { name: 'name', value: 'hello' } })
+  expect(onNotify).not.toBeCalledWith('validationErrors', ['custom'])
+  fireEvent.click(screen.getByText(/submit/i))
+  expect(onNotify).toBeCalledWith('validationErrors', ['custom'])
 })
