@@ -35,7 +35,7 @@ export const errors = {
     `The validator(s) for ${keys} in validators are invalid.`,
     'docs: https://github.com/balazsorban44/use-form/wiki#use-form-validators',
   ].join('\n'),
-  outsideProvider: 'useForm cannot be used outside a FormProvider'
+  outsideProvider: name => `useForm with name cannot be used outside a FormProvider (name was ${name})`
 }
 
 export default function handleDevErrors ({ name, initialState, form, validators, onSubmit }) {

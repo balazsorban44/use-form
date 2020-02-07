@@ -6,7 +6,9 @@ import { errors as devErrors } from './handleDevErrors'
  * the first parameter must be an object that will be
  * merged with the form.
  */
-export default function changeHandler({ dispatch, setErrors, form, name, onNotify, validators, args }) {
+export default function changeHandler({
+  dispatch, setErrors, form, name, onNotify, validators, args, extendValidations
+}) {
 
   let fields = {}
 
@@ -29,6 +31,7 @@ export default function changeHandler({ dispatch, setErrors, form, name, onNotif
   }
   if (Array.isArray(args[1])) {
     validations = args[1]
+    extendValidations(args[1])
   }
 
 

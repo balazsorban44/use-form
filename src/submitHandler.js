@@ -6,14 +6,17 @@ import { errors as devErrors } from './handleDevErrors'
  * It does a validation on all the fields
  * before it is being sent.
  */
-export default function submitHandler({ e, options, name, form, submit, setLoading, setErrors, onNotify, validators }) {
+export default function submitHandler({
+  e, options, name, form, submit, setLoading, setErrors, onNotify, validators, customValidations
+}) {
   e?.preventDefault?.()
   name = options?.formName || name
 
-  const errors = validate({ fields: form, validators, submitting: true })
+  const validations = [...Object.keys(form), ...customValidations]
+  const errors = validate({ fields: form, validators, submitting: true, validations })
   setErrors(e => ({ ...e, ...errors }))
 
-  const _errors = Object.entries(errors).filter(([_, v]) => v).map(([k]) => k)
+  const _errors = Object.entries(errors).reduce((a, [k, v]) => [...a, ...(v ? [k] : [])], [])
   if (_errors.length)
     onNotify?.('validationErrors', _errors)
 

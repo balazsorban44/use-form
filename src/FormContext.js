@@ -1,6 +1,7 @@
-import React, { createContext, useReducer, useEffect, useRef, useContext, useMemo } from 'react'
+import React, { createContext, useReducer, useContext, useMemo } from 'react'
 import { errors } from './handleDevErrors'
 import reducer from './reducer'
+import useDeepCompareEffect from 'use-deep-compare-effect'
 
 const FormContext = createContext()
 
@@ -17,13 +18,9 @@ function FormProvider({
    * We override initialStates if the prop has changed.
    * Useful for asynchronously fetched initialState.
    */
-  const initialStatesRef = useRef(initialStates)
-  useEffect(() => {
-    if (
-      JSON.stringify(initialStates) !== JSON.stringify(initialStatesRef.current)
-    )
-      dispatch({ payload: initialStates })
-  }, [initialStates])
+  useDeepCompareEffect(() => {
+    dispatch({ payload: initialStates })
+  }, [initialStates, dispatch])
 
   const value = useMemo(() => ({
     forms,
@@ -49,18 +46,18 @@ function useFormContext(name, initialState) {
    * We override initialState if the prop has changed.
    * Useful for asynchronously fetched initialState.
    */
-  const initialStateRef = useRef(initialState)
-  useEffect(() => {
-    if (
-      JSON.stringify(initialState) !== JSON.stringify(initialStateRef.current)
-    )
+  useDeepCompareEffect(() => {
+    if (name) {
+      context.dispatch({ payload: initialState })
+    } else {
       dispatch({ payload: initialState })
-  }, [initialState])
+    }
+  }, [name, initialState, dispatch])
 
   if (!name) return { form, dispatch }
 
-  if (process.env.NODE_ENV !== 'production')
-    if (!context) throw new Error(errors.outsideProvider)
+  if (process.env.NODE_ENV !== 'production' && !context)
+    throw new Error(errors.outsideProvider(name))
 
   const { forms, validators, ...rest } = context
 
