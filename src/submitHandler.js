@@ -14,6 +14,15 @@ export default function submitHandler({
 
 
   const validations = Object.keys(validators({}))
+
+  if (process.env.NODE_ENV !== 'production') {
+    const invalidValidators = validations.filter(validation =>
+      typeof validators(form, false)[validation] !== 'boolean'
+    )
+    if (invalidValidators.length)
+      throw new Error(devErrors.invalidValidators(invalidValidators))
+  }
+
   const errors = validate({ fields: form, validators, submitting: true, validations })
   setErrors(e => ({ ...e, ...errors }))
 
