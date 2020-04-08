@@ -1,6 +1,6 @@
 {
   "name": "another-use-form-hook",
-  "version": "0.0.0-semantically-released",
+  "version": "4.2.0-alpha.0",
   "maintainers": [
     {
       "name": "Balázs Orbán",
@@ -53,7 +53,8 @@
   },
   "scripts": {
     "build": "kcd-scripts build && kcd-scripts build --bundle --no-clean",
-    "publish:alpha": "yarn build; npm publish --tag alpha",
+    "prepare": "yarn build",
+    "publish:alpha": "npm publish --tag alpha",
     "validate": "kcd-scripts validate",
     "test": "kcd-scripts test --verbose",
     "test:coverage": "yarn test --coverage --coverageReporters html --watchAll",
