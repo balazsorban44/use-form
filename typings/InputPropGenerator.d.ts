@@ -1,6 +1,6 @@
 import * as React from "react"
 
-type InputTypes =
+export type InputTypes =
   | 'text'
   | 'radio'
   | 'email'
