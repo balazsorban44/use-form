@@ -14,8 +14,7 @@ const inputTypes = [
 ]
 
 
-const inputPropsGenerator = ({ type, fields, handleChange, handleSubmit }) =>
-  (name, { value, generateProps, formName } = {}) => {
+const inputPropsGenerator = ({ type, fields, handleChange, handleSubmit, extendInputProps }) =>
     const field = fields[name]
 
     let props = {
@@ -58,13 +57,10 @@ const inputPropsGenerator = ({ type, fields, handleChange, handleSubmit }) =>
       break
     }
 
+    const allProps = { ...props, ...field }
     return {
       ...props,
-      ...generateProps?.({
-        name,
-        value: field.value,
-        error: field.error
-      })
+      ...extendInputProps?.(allProps),
     }
   }
 
