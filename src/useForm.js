@@ -8,7 +8,9 @@ import changeHandler from './changeHandler'
 import submitHandler from './submitHandler'
 import concatFieldsAndErrors from './utils/concatFieldsAndErrors'
 
-export default function useForm ({ name, initialState, validators, onSubmit, onNotify }) {
+export default function useForm ({
+  name, initialState, validators, onSubmit, onNotify, extendInputProps
+}) {
 
   const { form, dispatch, ...context } = useFormContext(name, initialState)
 
@@ -35,7 +37,7 @@ export default function useForm ({ name, initialState, validators, onSubmit, onN
       e, options, name, form, submit: onSubmit, setLoading, onNotify, setErrors, validators
     })
 
-  const inputs = inputPropGenerators({ fields, handleChange, handleSubmit })
+  const inputs = inputPropGenerators({ fields, handleChange, handleSubmit, extendInputProps })
 
   return ({
     name,

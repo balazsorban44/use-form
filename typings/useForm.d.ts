@@ -2,7 +2,7 @@ import * as React from "react"
 import { Validators } from "./Validators"
 import { FieldValues, FieldValuesAndErrors } from "./FormData"
 import { NotifyCallback, SubmitNotificationType } from "./Notification"
-import { InputPropGenerators } from "./InputPropGenerator"
+import { InputPropGenerators, InputTypes } from "./InputPropGenerator"
 
 
 export type SubmitCallback<N, F, T = any> = (submitParams: {
@@ -114,7 +114,24 @@ declare function useForm<
    * (Eg.: Invalid input, submit error or submit success)
    */
   onNotify?: NotifyCallback<F>
+  /**
+   * The returned object of this function
+   * will be merged with the rest of other props
+   * for every input type.
+   * @note 
+   * extendProps of any input.{type}() will override these values,
+   * as it is more specific to that input.
+   */
+  extendInputProps?: ExtendInputPropsCallback<N, F>
 }) : UseForm<N, F, V, keyof ReturnType<V>, S>
+
+
+type ExtendInputPropsCallback<N, F, P = {
+  name: N
+  value: F[keyof F]
+  type: InputTypes
+  error: boolean
+} > = (props: P) => P & R
 
 export interface ChangeHandler<F, V> {
   (
