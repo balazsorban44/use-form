@@ -1,3 +1,4 @@
+import { warnings } from './handleDevErrors'
 
 const inputTypes = [
   'text', 'radio', 'email', 'password', 'search', 'color', 'tel', 'url', 'submit',
@@ -15,6 +16,7 @@ const inputTypes = [
 
 
 const inputPropsGenerator = ({ type, fields, handleChange, handleSubmit, extendInputProps }) =>
+  (name, { value, generateProps, extendProps, formName } = {}) => {
     const field = fields[name]
 
     let props = {
@@ -57,10 +59,17 @@ const inputPropsGenerator = ({ type, fields, handleChange, handleSubmit, extendI
       break
     }
 
+    // TODO: remove when generateProps is deprecated
+    if (process.env.NODE_ENV === 'development' && generateProps)
+      console.warn(warnings.generatePropsToExtendProps)
+
+    extendProps = generateProps || extendProps
+
     const allProps = { ...props, ...field }
     return {
       ...props,
       ...extendInputProps?.(allProps),
+      ...extendProps?.(allProps)
     }
   }
 

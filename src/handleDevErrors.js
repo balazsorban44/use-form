@@ -5,6 +5,12 @@ export const warnings = {
     '⚠  CAUTION! ⚠ ',
     `another-use-form-hook@${version} is an experimental version`,
     'and it may contain bugs 🐛',
+  ].join('\n'),
+  generatePropsToExtendProps: [
+    'In a future version of the package,',
+    'generateProps will be renamed to extendProps',
+    'in favor of name consistency with useForms().extendProps.',
+    'Note that extendProps specified here will override useForms().extendProps',
   ].join('\n')
 }
 

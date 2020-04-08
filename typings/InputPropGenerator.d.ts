@@ -30,20 +30,33 @@ interface GeneratedProps<T, F, N> {
 }
 type GenericObject = { [key: string]: any };
 
-
-type GeneratePropsFunc<T, F, N, R, P ={
+type GeneratePropsFunc<F, N, R, P ={
   name: N
   value: F[N]
   error: boolean
 } > = (props: P) => P & R
 
 type InputPropGenerator<
-  T, F, N, G = GeneratePropsFunc<T, F, N, {}>
+  T, F, N, G = GeneratePropsFunc<F, N, {}>
 > = (
   name: N,
   options?: {
     value: T extends "checkbox" | "select" ? string : never
+    /**
+     * @deprecated
+     * `generateProps` will be renamed to extendProps'
+     * for the sake of name consistency with useForms().extendProps.
+     */
     generateProps: G
+    /**
+     * Use this instead of `generateProps`.
+     * The returned object of this function
+     * will be merged with the rest of other props.
+     * @note
+     * If you have a useForm().extendProps defined,
+     * this will override those values.
+     */
+    extendProps: G
     /** Override the name of the form being submitted. */
     formName: T extends "submit" ? string : never
   }
