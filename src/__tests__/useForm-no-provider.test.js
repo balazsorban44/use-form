@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import useForm from '../useForm'
-import { render, fireEvent, waitForElement } from '@testing-library/react'
+import { render, fireEvent, screen } from '@testing-library/react'
 import validatorsMock from './utils/validators.mock'
 
 it('works without provider', () => {
@@ -44,9 +44,8 @@ it('set initialState async', async () => {
     return <input {...inputs.text('input')}/>
   }
 
-  const { getByDisplayValue } = render(<App/>)
+  render(<App/>)
 
-  await waitForElement(() => getByDisplayValue('VALUE'))
 
-  expect(getByDisplayValue('VALUE')).toBeInTheDocument()
+  expect(await screen.findByDisplayValue('VALUE')).toBeInTheDocument()
 })
