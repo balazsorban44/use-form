@@ -49,7 +49,7 @@
     "react": "^16.11.0",
     "react-dom": "^16.12.0",
     "react-test-renderer": "^16.12.0",
-    "semantic-release": "^17.0.2"
+    "semantic-release": "^19.0.3"
   },
   "scripts": {
     "build": "kcd-scripts build && kcd-scripts build --bundle --no-clean",
